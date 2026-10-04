@@ -1,0 +1,3832 @@
+
+<!DOCTYPE html>
+<html lang="{{ current_user.language if current_user.is_authenticated else 'en' }}"
+      data-theme="{{ current_user.theme if current_user.is_authenticated else 'light' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b2b5c">
+
+<!-- ==================== FIREBASE SDK ==================== -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script>
+  // Firebase config — Jinja se inject karo
+  const firebaseConfig = {
+    apiKey: "{{ config.FIREBASE_API_KEY }}",
+    authDomain: "{{ config.FIREBASE_AUTH_DOMAIN }}",
+    projectId: "{{ config.FIREBASE_PROJECT_ID }}",
+    appId: "{{ config.FIREBASE_APP_ID }}",
+    messagingSenderId: "{{ config.FIREBASE_MESSAGING_SENDER_ID }}"
+  };
+  
+  // Initialize Firebase
+  if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+  }
+</script>
+<title>{% block title %}{{ COMPANY_NAME }}{% endblock %}</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-5 55 385 290'%3E%3Cdefs%3E%3ClinearGradient id='navyG' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231e40af'/%3E%3Cstop offset='1' stop-color='%230a1e4a'/%3E%3C/linearGradient%3E%3ClinearGradient id='orangeG' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fb923c'/%3E%3Cstop offset='1' stop-color='%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='18' y='168' width='128' height='16' rx='8' fill='url(%23orangeG)'/%3E%3Crect x='0' y='196' width='146' height='16' rx='8' fill='url(%23orangeG)'/%3E%3Crect x='18' y='224' width='128' height='16' rx='8' fill='url(%23orangeG)'/%3E%3Ccircle cx='220' cy='200' r='110' fill='none' stroke='url(%23navyG)' stroke-width='56'/%3E%3Cpath d='M 125 235 Q 220 278 305 215 Q 340 180 360 145' stroke='url(%23orangeG)' stroke-width='26' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+<style>
+/* ============================================================
+   OmniCart — Complete Stylesheet (inline)
+   Copyright (c) 2026 PATEL KARKHANA PVT.LTD.
+   ============================================================ */
+
+/* ---------- ROOT / THEME ---------- */
+/* ============================================================
+   OmniCart — Complete Stylesheet
+   ============================================================ */
+
+/* ---------- THEME PALETTES ---------- */
+
+/* LIGHT (default) — Navy + Orange */
+:root,html[data-theme="light"]{
+  --navy-1:#0b2b5c;--navy-2:#123a77;--navy-3:#071d40;
+  --orange-1:#f97316;--orange-2:#ea580c;--orange-3:#c2410c;
+  --bg-1:#ffffff;--bg-2:#f8fafc;--panel:#ffffff;
+  --border:rgba(11,43,92,.12);--border-strong:rgba(11,43,92,.28);
+  --text:#0f172a;--text-2:#475569;--muted:#94a3b8;
+  --success:#059669;--warning:#ea580c;--gold:#f59e0b;--danger:#dc2626;
+  --topbar-h:80px;--sidebar-w:290px;
+  --shadow-sm:0 2px 8px rgba(11,43,92,.06);
+  --shadow-md:0 8px 24px rgba(11,43,92,.10);
+  --shadow-lg:0 20px 50px rgba(11,43,92,.20);
+}
+
+/* DARK — Charcoal + Orange */
+html[data-theme="dark"]{
+  --navy-1:#0a0f1e;--navy-2:#1e293b;--navy-3:#020617;
+  --orange-1:#f97316;--orange-2:#ea580c;--orange-3:#c2410c;
+  --bg-1:#0a0f1e;--bg-2:#0f172a;--panel:#111c33;
+  --border:rgba(255,255,255,.10);--border-strong:rgba(255,255,255,.22);
+  --text:#e2e8f0;--text-2:#cbd5e1;--muted:#94a3b8;
+  --success:#10b981;--warning:#f97316;--gold:#f59e0b;--danger:#ef4444;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.35);
+  --shadow-md:0 8px 24px rgba(0,0,0,.45);
+  --shadow-lg:0 20px 50px rgba(0,0,0,.55);
+}
+
+/* OCEAN — Teal + Cyan */
+html[data-theme="ocean"]{
+  --navy-1:#0c4a6e;--navy-2:#075985;--navy-3:#082f49;
+  --orange-1:#06b6d4;--orange-2:#0891b2;--orange-3:#0e7490;
+  --bg-1:#f0fdff;--bg-2:#ecfeff;--panel:#ffffff;
+  --border:rgba(12,74,110,.14);--border-strong:rgba(12,74,110,.30);
+  --text:#0f172a;--text-2:#475569;--muted:#94a3b8;
+  --success:#059669;--warning:#ea580c;--gold:#f59e0b;--danger:#dc2626;
+  --shadow-sm:0 2px 8px rgba(12,74,110,.08);
+  --shadow-md:0 8px 24px rgba(12,74,110,.12);
+  --shadow-lg:0 20px 50px rgba(12,74,110,.22);
+}
+
+/* FOREST — Green + Lime */
+html[data-theme="forest"]{
+  --navy-1:#14532d;--navy-2:#166534;--navy-3:#052e16;
+  --orange-1:#84cc16;--orange-2:#65a30d;--orange-3:#4d7c0f;
+  --bg-1:#f7fee7;--bg-2:#f0fdf4;--panel:#ffffff;
+  --border:rgba(20,83,45,.14);--border-strong:rgba(20,83,45,.30);
+  --text:#0f172a;--text-2:#475569;--muted:#94a3b8;
+  --success:#059669;--warning:#ea580c;--gold:#f59e0b;--danger:#dc2626;
+  --shadow-sm:0 2px 8px rgba(20,83,45,.08);
+  --shadow-md:0 8px 24px rgba(20,83,45,.12);
+  --shadow-lg:0 20px 50px rgba(20,83,45,.22);
+}
+
+/* SUNSET — Deep Red + Peach */
+html[data-theme="sunset"]{
+  --navy-1:#7c2d12;--navy-2:#9a3412;--navy-3:#431407;
+  --orange-1:#fb923c;--orange-2:#f97316;--orange-3:#ea580c;
+  --bg-1:#fff7ed;--bg-2:#fffbf5;--panel:#ffffff;
+  --border:rgba(124,45,18,.14);--border-strong:rgba(124,45,18,.30);
+  --text:#0f172a;--text-2:#475569;--muted:#94a3b8;
+  --success:#059669;--warning:#ea580c;--gold:#f59e0b;--danger:#dc2626;
+  --shadow-sm:0 2px 8px rgba(124,45,18,.08);
+  --shadow-md:0 8px 24px rgba(124,45,18,.12);
+  --shadow-lg:0 20px 50px rgba(124,45,18,.22);
+}
+
+/* ROYAL — Purple + Pink */
+html[data-theme="royal"]{
+  --navy-1:#4c1d95;--navy-2:#6d28d9;--navy-3:#2e1065;
+  --orange-1:#ec4899;--orange-2:#db2777;--orange-3:#be185d;
+  --bg-1:#fdf4ff;--bg-2:#fae8ff;--panel:#ffffff;
+  --border:rgba(76,29,149,.14);--border-strong:rgba(76,29,149,.30);
+  --text:#0f172a;--text-2:#475569;--muted:#94a3b8;
+  --success:#059669;--warning:#ea580c;--gold:#f59e0b;--danger:#dc2626;
+  --shadow-sm:0 2px 8px rgba(76,29,149,.08);
+  --shadow-md:0 8px 24px rgba(76,29,149,.12);
+  --shadow-lg:0 20px 50px rgba(76,29,149,.22);
+}
+
+/* ---------- BASE RESET ---------- */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden}
+body{min-height:100vh;background:var(--bg-1);color:var(--text);
+  font-size:15px;line-height:1.6;
+  font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Tahoma,sans-serif;
+  transition:background .25s,color .25s}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 12%,rgba(11,43,92,.06),transparent 45%),
+    radial-gradient(circle at 88% 88%,rgba(249,115,22,.07),transparent 50%)}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+img{max-width:100%;display:block}
+
+/* ---------- TOPBAR ---------- */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);z-index:60;
+  display:flex;align-items:center;gap:.55rem;padding:0 .85rem;
+  background:linear-gradient(90deg,var(--navy-1),var(--navy-2));
+  border-bottom:3px solid var(--orange-1);
+  box-shadow:0 6px 22px rgba(11,43,92,.35)}
+.menu-btn{width:44px;height:44px;flex-shrink:0;background:rgba(255,255,255,.10);
+  border:1.5px solid rgba(255,255,255,.20);border-radius:12px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:5px;transition:.2s}
+.menu-btn:hover{background:rgba(249,115,22,.28);border-color:var(--orange-1)}
+.menu-btn span{display:block;width:22px;height:2.5px;border-radius:2px;
+  background:#fff;transition:.3s}
+.menu-btn.active span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+.menu-btn.active span:nth-child(2){opacity:0}
+.menu-btn.active span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+
+/* ---------- LOGO / BRAND ---------- */
+.logo-block{display:flex;align-items:center;gap:.6rem;flex-shrink:0;
+  text-decoration:none;transition:transform .25s}
+.logo-block:hover{transform:scale(1.03)}
+.logo-wrap{position:relative;width:60px;height:60px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center}
+.logo-wrap::before{content:"";position:absolute;inset:-6px;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--orange-1) 55%,transparent) 0%,transparent 65%);
+  filter:blur(6px);z-index:-1;animation:logoGlow 3s ease-in-out infinite}
+@keyframes logoGlow{
+  0%,100%{opacity:.55;transform:scale(.95)}
+  50%{opacity:1;transform:scale(1.08)}
+}
+.logo-svg{width:60px;height:60px;animation:floatLogo 3.5s ease-in-out infinite;
+  filter:drop-shadow(0 6px 16px color-mix(in srgb,var(--orange-1) 70%,transparent))
+         drop-shadow(0 0 24px color-mix(in srgb,var(--orange-1) 35%,transparent));
+  transition:filter .3s}
+.logo-block:hover .logo-svg{
+  filter:drop-shadow(0 8px 22px color-mix(in srgb,var(--orange-1) 90%,transparent))
+         drop-shadow(0 0 32px color-mix(in srgb,var(--orange-1) 55%,transparent))}
+@keyframes floatLogo{
+  0%,100%{transform:translateY(0) rotate(0)}
+  25%{transform:translateY(-5px) rotate(-4deg)}
+  50%{transform:translateY(0) rotate(0)}
+  75%{transform:translateY(-5px) rotate(4deg)}
+}
+.brand-block{display:flex;flex-direction:column;line-height:1;gap:.15rem}
+.brand-title{font-size:clamp(1.35rem,2.2vw,1.7rem);font-weight:900;
+  letter-spacing:.5px;position:relative;white-space:nowrap;
+  font-family:'Segoe UI Black','Arial Black',sans-serif;
+  background:linear-gradient(90deg,#fff 0%,var(--orange-1) 50%,#fff 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:brandShine 4s linear infinite;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.25))}
+@keyframes brandShine{
+  0%{background-position:0% center}
+  100%{background-position:200% center}
+}
+.brand-sub{font-size:.66rem;font-weight:900;color:var(--orange-1);
+  letter-spacing:2.5px;text-transform:uppercase;
+  display:flex;align-items:center;gap:.4rem;padding-left:2px;opacity:.9}
+.brand-sub::before,.brand-sub::after{content:"◆";font-size:.5rem;
+  color:var(--orange-1);opacity:.85}
+
+/* ---------- SEARCH FORM ---------- */
+.search-form{flex:1 1 auto;display:flex;max-width:340px;margin:0 auto;min-width:0;
+  background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.20);
+  border-radius:30px;overflow:hidden;transition:.2s}
+.search-form:focus-within{background:rgba(255,255,255,.20);
+  border-color:var(--orange-1);box-shadow:0 0 0 3px color-mix(in srgb,var(--orange-1) 28%,transparent)}
+.search-form input{flex:1;padding:.55rem 1rem;background:transparent;border:none;
+  color:#fff;outline:none;font-size:.85rem;font-family:inherit;min-width:0}
+.search-form input::placeholder{color:rgba(255,255,255,.65);font-weight:600}
+.search-form button{padding:0 1rem;border:none;color:#fff;font-size:.95rem;
+  background:linear-gradient(145deg,var(--orange-1),var(--orange-3))}
+
+/* ---------- TOP-RIGHT BUTTONS ---------- */
+.top-right{margin-left:auto;display:flex;align-items:center;gap:.35rem;flex-shrink:0}
+.btn-top{padding:.42rem .75rem;border-radius:30px;font-weight:800;font-size:.74rem;
+  color:#fff;white-space:nowrap;transition:.2s;border:1.5px solid transparent;
+  background:linear-gradient(145deg,var(--orange-1),var(--orange-3));
+  box-shadow:0 4px 12px color-mix(in srgb,var(--orange-1) 40%,transparent);
+  display:inline-block}
+.btn-top:hover{transform:translateY(-1px);
+  box-shadow:0 8px 18px color-mix(in srgb,var(--orange-1) 55%,transparent)}
+.btn-top.outline{background:transparent;border-color:rgba(255,255,255,.35)}
+.btn-top.outline:hover{background:rgba(255,255,255,.12)}
+.btn-top.company-access-btn{background:linear-gradient(145deg,#f59e0b,#b45309);
+  border-color:transparent;font-size:.72rem;
+  box-shadow:0 4px 12px rgba(245,158,11,.4)}
+.btn-top.company-access-btn:hover{box-shadow:0 8px 18px rgba(245,158,11,.55)}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar-backdrop{display:none;position:fixed;inset:0;z-index:70;
+  background:rgba(7,29,64,.65);backdrop-filter:blur(3px)}
+.sidebar-backdrop.active{display:block}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);z-index:80;
+  background:var(--panel);border-right:3px solid var(--orange-1);
+  padding:1.1rem .85rem;overflow-y:auto;
+  transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+  box-shadow:10px 0 40px rgba(0,0,0,.25)}
+.sidebar.open{transform:translateX(0)}
+.sidebar-head{display:flex;justify-content:space-between;align-items:center;
+  padding:0 .3rem 1rem;border-bottom:2px solid var(--border-strong);margin-bottom:1rem}
+.sidebar-title{font-size:.9rem;font-weight:900;color:var(--navy-1);
+  letter-spacing:2px;text-transform:uppercase}
+.sidebar-close{background:transparent;border:none;color:var(--orange-2);
+  font-size:1.6rem;line-height:1;padding:.2rem .5rem;border-radius:8px}
+.sidebar nav{display:flex;flex-direction:column;gap:.15rem}
+.sidebar a{display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;
+  border-radius:10px;color:var(--text-2);font-weight:600;font-size:.86rem;
+  transition:.15s;position:relative}
+.sidebar a:hover{background:rgba(11,43,92,.08);color:var(--navy-1);transform:translateX(4px)}
+.sidebar a.admin-link{color:var(--orange-2);font-weight:800;
+  background:color-mix(in srgb,var(--orange-1) 10%,transparent);
+  border:1.5px dashed var(--orange-2)}
+.sidebar .divider{height:1px;background:var(--border);margin:.5rem .3rem}
+.sidebar .group-label{padding:.6rem .8rem .2rem;font-size:.66rem;font-weight:900;
+  color:var(--orange-2);text-transform:uppercase;letter-spacing:1.5px;opacity:.85}
+.badge-dot{background:var(--danger);color:#fff;border-radius:20px;min-width:22px;
+  height:20px;font-size:.68rem;font-weight:800;display:inline-flex;
+  align-items:center;justify-content:center;padding:0 .4rem;margin-left:auto}
+
+/* ---------- MAIN CONTENT ---------- */
+.content{position:relative;z-index:5;max-width:1280px;margin:0 auto;
+  padding:1.3rem;padding-top:calc(var(--topbar-h) + 1rem);
+  min-height:calc(100vh - var(--topbar-h) - 140px)}
+.panel{background:var(--panel);border:1.5px solid var(--border);
+  border-radius:18px;padding:clamp(1rem,3vw,1.6rem);
+  box-shadow:var(--shadow-sm);margin-bottom:1.2rem}
+.panel h2{margin-bottom:.9rem;color:var(--navy-1);
+  font-size:clamp(1.05rem,3vw,1.35rem);font-weight:900}
+.panel h3{margin:1rem 0 .5rem;color:var(--text);font-weight:800;font-size:1rem}
+.section-title{margin:.3rem 0 1.1rem;font-size:clamp(1rem,2.5vw,1.25rem);
+  font-weight:900;border-left:5px solid var(--orange-1);padding-left:.85rem;
+  text-transform:uppercase;letter-spacing:.8px;display:flex;
+  align-items:center;gap:.6rem;flex-wrap:wrap}
+
+/* ---------- FLASH ---------- */
+.flash{padding:.75rem 1rem;border-radius:12px;margin-bottom:.7rem;font-weight:700;
+  font-size:.86rem;display:flex;gap:.5rem;border:1.5px solid}
+.flash.success{background:rgba(5,150,105,.10);color:#047857;border-color:rgba(5,150,105,.35)}
+.flash.danger{background:rgba(220,38,38,.08);color:#b91c1c;border-color:rgba(220,38,38,.35)}
+.flash.warning{background:rgba(234,179,8,.10);color:#92400e;border-color:rgba(234,179,8,.4)}
+.flash.info{background:rgba(59,130,246,.08);color:#1d4ed8;border-color:rgba(59,130,246,.35)}
+
+/* ---------- HERO ---------- */
+.hero{background:linear-gradient(135deg,var(--navy-1) 0%,var(--navy-3) 55%,#000 100%);
+  color:#fff;border-radius:22px;padding:clamp(1.5rem,4vw,2.5rem);
+  margin-bottom:1.6rem;position:relative;overflow:hidden;
+  box-shadow:0 16px 44px rgba(11,43,92,.30)}
+.hero::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 82% 18%,color-mix(in srgb,var(--orange-1) 35%,transparent),transparent 45%),
+    radial-gradient(circle at 8% 92%,rgba(11,43,92,.55),transparent 55%)}
+.hero-inner{position:relative;text-align:center;max-width:820px;margin:0 auto}
+.hero h1{font-size:clamp(1.35rem,4vw,2rem);font-weight:900;
+  margin-bottom:.5rem;line-height:1.2}
+.hero p{font-size:clamp(.85rem,2vw,1rem);opacity:.92;margin-bottom:1.1rem}
+.hero-stats{display:flex;justify-content:center;gap:clamp(.8rem,4vw,2.4rem);
+  flex-wrap:wrap;margin-top:.8rem}
+.hero-stat b{display:block;font-size:clamp(1.15rem,3vw,1.55rem);font-weight:900;
+  color:var(--orange-1)}
+.hero-stat span{font-size:.68rem;opacity:.85;text-transform:uppercase;
+  letter-spacing:.8px;font-weight:800}
+
+/* ---------- CHIPS ---------- */
+.chip-row{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.5rem;
+  margin-bottom:1rem;scrollbar-width:none}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:.42rem 1rem;border-radius:50px;background:var(--panel);
+  border:2px solid var(--border);font-size:.82rem;font-weight:700;
+  color:var(--text-2);transition:.2s;cursor:pointer}
+.chip:hover{border-color:var(--orange-1);color:var(--orange-2);transform:translateY(-2px)}
+.chip.active{background:linear-gradient(145deg,var(--navy-1),var(--navy-3));
+  color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(11,43,92,.35)}
+
+/* ---------- PDF GRID ---------- */
+.pdf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1.05rem}
+.pdf-card{background:var(--panel);border:1.5px solid var(--border);border-radius:16px;
+  color:inherit;transition:.25s;overflow:hidden;position:relative;
+  display:flex;flex-direction:column;box-shadow:var(--shadow-sm)}
+.pdf-card:hover{transform:translateY(-5px);border-color:var(--orange-1);
+  box-shadow:0 22px 40px -14px rgba(11,43,92,.4)}
+.pdf-thumb{height:150px;display:flex;align-items:center;justify-content:center;
+  font-size:3.2rem;position:relative;
+  background:linear-gradient(145deg,rgba(11,43,92,.08),
+    color-mix(in srgb,var(--orange-1) 10%,transparent))}
+.pdf-thumb .cat-tag{position:absolute;top:.5rem;left:.5rem;
+  background:var(--navy-1);color:#fff;font-size:.6rem;font-weight:800;
+  padding:.22rem .55rem;border-radius:6px;letter-spacing:.4px;
+  text-transform:uppercase;max-width:75%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pdf-thumb .pages-tag{position:absolute;bottom:.5rem;right:.5rem;
+  background:#fff;color:var(--navy-1);font-size:.64rem;font-weight:900;
+  padding:.22rem .55rem;border-radius:6px;box-shadow:var(--shadow-sm)}
+.pdf-thumb .lock-badge{position:absolute;top:.5rem;right:.5rem;
+  background:rgba(220,38,38,.92);color:#fff;width:28px;height:28px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;box-shadow:0 3px 10px rgba(220,38,38,.5)}
+.pdf-body{padding:.85rem .95rem 1rem;flex:1;display:flex;flex-direction:column}
+.pdf-body h4{color:var(--text);margin-bottom:.35rem;font-size:.9rem;
+  font-weight:800;line-height:1.35;min-height:2.5em;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden}
+.pdf-body .p-sub{color:var(--muted);font-size:.68rem;font-weight:800;
+  margin-bottom:.55rem;text-transform:uppercase;letter-spacing:.4px}
+.pdf-foot{display:flex;align-items:center;justify-content:space-between;
+  margin-top:auto;padding-top:.6rem;border-top:1.5px dashed var(--border)}
+.pdf-price{color:var(--navy-1);font-weight:900;font-size:1.1rem}
+.pdf-price .free-tag{color:var(--success);font-size:.7rem;font-weight:900;
+  text-transform:uppercase;letter-spacing:.5px}
+.btn-view-sm{padding:.4rem .85rem;border-radius:30px;
+  background:linear-gradient(145deg,var(--orange-1),var(--orange-3));
+  color:#fff;font-size:.72rem;font-weight:800;border:none;
+  display:inline-flex;align-items:center;gap:.3rem;transition:.2s}
+.btn-view-sm:hover{transform:translateX(3px)}
+
+/* ---------- CATEGORY CARDS ---------- */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:.75rem}
+.cat-card{background:var(--panel);border:1.5px solid var(--border);
+  border-radius:14px;padding:.9rem 1rem;display:flex;align-items:center;gap:.7rem;
+  transition:.2s;color:inherit;box-shadow:var(--shadow-sm)}
+.cat-card:hover{border-color:var(--orange-1);transform:translateY(-3px);
+  box-shadow:0 14px 24px -10px rgba(11,43,92,.3)}
+.cat-card .ic{width:44px;height:44px;border-radius:11px;flex-shrink:0;
+  background:linear-gradient(145deg,rgba(11,43,92,.12),
+    color-mix(in srgb,var(--orange-1) 12%,transparent));
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.cat-card .info b{display:block;font-size:.88rem;font-weight:800;line-height:1.25}
+.cat-card .info span{font-size:.68rem;color:var(--muted);font-weight:700}
+
+/* ---------- PDF VIEWER ---------- */
+.viewer-grid{display:grid;grid-template-columns:1fr 340px;gap:1.1rem;align-items:start}
+.viewer-frame{background:var(--panel);border:1.5px solid var(--border);
+  border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md);position:relative}
+.viewer-frame iframe{width:100%;height:min(78vh,720px);border:none;display:block;
+  background:#525659}
+.viewer-side{display:flex;flex-direction:column;gap:.85rem;
+  position:sticky;top:calc(var(--topbar-h) + 1rem)}
+.side-card{background:var(--panel);border:1.5px solid var(--border);
+  border-radius:14px;padding:1.05rem;box-shadow:var(--shadow-sm)}
+.side-card h3{font-size:1rem;font-weight:900;margin-bottom:.3rem;line-height:1.3}
+.side-card .meta{font-size:.72rem;color:var(--muted);font-weight:800;
+  margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.4px}
+.price-block{background:linear-gradient(145deg,rgba(11,43,92,.06),
+    color-mix(in srgb,var(--orange-1) 8%,transparent));
+  border:2px dashed var(--orange-1);border-radius:12px;padding:.9rem;
+  text-align:center;margin-bottom:.8rem}
+.price-block .lbl{font-size:.66rem;color:var(--muted);font-weight:900;
+  text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:.15rem}
+.price-block .amt{display:block;font-size:2rem;font-weight:900;
+  color:var(--orange-2);letter-spacing:-.5px;line-height:1}
+.preview-note{background:rgba(234,179,8,.10);border:1.5px solid rgba(234,179,8,.5);
+  border-radius:10px;padding:.7rem .85rem;margin-bottom:.8rem;font-size:.8rem;
+  color:#92400e;font-weight:700;line-height:1.5}
+.btn-buy{width:100%;padding:.85rem;border-radius:11px;
+  background:linear-gradient(145deg,var(--orange-1),var(--orange-3));
+  color:#fff;font-weight:900;font-size:.92rem;border:none;
+  box-shadow:0 8px 20px -4px color-mix(in srgb,var(--orange-1) 70%,transparent);
+  transition:.2s;display:flex;align-items:center;justify-content:center;
+  gap:.4rem;text-decoration:none}
+.btn-buy:hover{transform:translateY(-2px);
+  box-shadow:0 12px 26px -4px color-mix(in srgb,var(--orange-1) 85%,transparent)}
+.btn-buy:disabled{opacity:.6;cursor:wait}
+.btn-dl{width:100%;padding:.8rem;border-radius:11px;
+  background:linear-gradient(145deg,#16a34a,#065f46);color:#fff;
+  font-weight:900;font-size:.9rem;border:none;
+  box-shadow:0 8px 20px -4px rgba(22,163,74,.6);transition:.2s;
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+  text-decoration:none}
+.btn-dl:hover{transform:translateY(-2px)}
+.owns-badge{background:rgba(5,150,105,.10);border:1.5px solid rgba(5,150,105,.5);
+  border-radius:10px;padding:.7rem .85rem;margin-bottom:.8rem;color:#047857;
+  font-size:.82rem;font-weight:800;text-align:center}
+
+/* ---------- LOCK OVERLAY ---------- */
+.lock-overlay{position:absolute;inset:0;background:rgba(7,29,64,.85);
+  backdrop-filter:blur(6px);display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:.8rem;color:#fff;
+  text-align:center;padding:2rem;z-index:10;animation:fadeIn .35s ease-out}
+.lock-overlay.active{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.lock-icon{width:82px;height:82px;border-radius:50%;
+  background:linear-gradient(145deg,var(--orange-1),var(--orange-3));
+  display:flex;align-items:center;justify-content:center;font-size:2.4rem;
+  box-shadow:0 10px 30px color-mix(in srgb,var(--orange-1) 60%,transparent);
+  animation:pulseLock 2s infinite}
+@keyframes pulseLock{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.lock-overlay h3{font-size:1.3rem;font-weight:900}
+.lock-overlay p{font-size:.9rem;opacity:.92;max-width:400px;line-height:1.5}
+.lock-overlay .unlock-btn{margin-top:.5rem;padding:.85rem 2rem;border:none;
+  border-radius:30px;background:linear-gradient(145deg,var(--orange-1),var(--orange-3));
+  color:#fff;font-weight:900;font-size:.95rem;cursor:pointer;
+  box-shadow:0 10px 26px color-mix(in srgb,var(--orange-1) 60%,transparent);
+  transition:.2s}
+.lock-overlay .unlock-btn:hover{transform:translateY(-2px) scale(1.03)}
+
+/* ---------- MODAL ---------- */
+.modal-backdrop{display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(7,29,64,.75);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
+.modal-backdrop.active{display:flex}
+.modal{background:var(--panel);border-radius:20px;max-width:520px;width:100%;
+  max-height:92vh;overflow-y:auto;padding:1.5rem;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);animation:modalIn .3s ease-out;
+  border-top:5px solid var(--orange-1)}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(.96)}
+  to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:1rem;padding-bottom:.7rem;border-bottom:2px solid var(--border)}
+.modal-head h3{font-size:1.1rem;font-weight:900;color:var(--navy-1)}
+.modal-close{background:transparent;border:none;font-size:1.5rem;
+  color:var(--muted);padding:.2rem .5rem;border-radius:8px;line-height:1}
+.modal-close:hover{background:rgba(220,38,38,.10);color:var(--danger)}
+
+/* ---------- UPI APPS ---------- */
+.upi-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin:1rem 0}
+.upi-app{background:var(--panel);border:2px solid var(--border);border-radius:14px;
+  padding:1rem .6rem;text-align:center;transition:.2s;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.upi-app:hover{border-color:var(--orange-1);transform:translateY(-3px);
+  box-shadow:0 12px 24px -8px color-mix(in srgb,var(--orange-1) 40%,transparent)}
+.upi-app .app-icon{width:46px;height:46px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;font-weight:900;color:#fff}
+.upi-app .app-name{font-size:.75rem;font-weight:800;color:var(--text-2)}
+.upi-app.phonepe .app-icon{background:linear-gradient(145deg,#5f259f,#3d1768)}
+.upi-app.paytm .app-icon{background:linear-gradient(145deg,#00baf2,#005f8d)}
+.upi-app.gpay .app-icon{background:linear-gradient(145deg,#4285f4,#1a73e8)}
+.upi-app.other .app-icon{background:linear-gradient(145deg,var(--navy-1),var(--navy-3))}
+.qr-box{background:#fff;border:3px solid var(--orange-1);border-radius:14px;
+  padding:1rem;text-align:center;margin:1rem 0}
+.qr-box img{max-width:220px;width:100%;margin:0 auto;border-radius:8px}
+.qr-box .upi-id-row{margin-top:.7rem;display:flex;align-items:center;
+  gap:.5rem;justify-content:center;background:rgba(11,43,92,.05);
+  padding:.6rem .9rem;border-radius:10px;flex-wrap:wrap}
+.qr-box .upi-id-row code{font-family:'Courier New',monospace;font-weight:800;
+  color:var(--navy-1);font-size:.88rem;word-break:break-all}
+.btn-copy{padding:.35rem .75rem;border-radius:8px;background:var(--navy-1);
+  color:#fff;font-weight:800;font-size:.72rem;border:none;transition:.2s}
+.btn-copy:hover{background:var(--orange-2)}
+.pay-tabs{display:flex;gap:.4rem;border-bottom:2px solid var(--border);margin-bottom:1rem}
+.pay-tab{flex:1;padding:.65rem .5rem;background:transparent;border:none;
+  font-weight:800;font-size:.82rem;color:var(--muted);cursor:pointer;
+  border-bottom:3px solid transparent;transition:.2s}
+.pay-tab.active{color:var(--orange-2);border-bottom-color:var(--orange-1)}
+.pay-pane{display:none}
+.pay-pane.active{display:block;animation:fadeIn .25s}
+
+/* ---------- AUTH CARD ---------- */
+.auth-wrap{display:flex;justify-content:center;align-items:center;
+  min-height:calc(100vh - var(--topbar-h) - 100px);padding:2rem 1rem}
+.auth-card{width:100%;max-width:440px;background:var(--panel);
+  border:2px solid var(--orange-1);border-radius:22px;
+  padding:clamp(1.4rem,4vw,2rem);box-shadow:var(--shadow-lg);
+  animation:cardFloat 4s ease-in-out infinite}
+@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.auth-card.wide{max-width:620px}
+.auth-card h2{text-align:center;margin-bottom:1.2rem;color:var(--navy-1);
+  font-size:clamp(1.15rem,4vw,1.45rem);font-weight:900}
+.auth-card label{display:block;margin:.8rem 0 .35rem;color:var(--text-2);
+  font-size:.82rem;font-weight:800}
+.auth-card input,.auth-card select,.auth-card textarea{
+  width:100%;padding:.75rem 1rem;border-radius:11px;border:2px solid var(--border);
+  background:var(--bg-1);color:var(--text);font-size:.9rem;outline:none;
+  font-family:inherit;transition:.15s}
+.auth-card input:focus,.auth-card select:focus,.auth-card textarea:focus{
+  border-color:var(--orange-1);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--orange-1) 15%,transparent)}
+.hint{display:block;color:var(--muted);font-size:.7rem;margin-top:.3rem;font-weight:600}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:2.9rem}
+.pw-toggle{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
+  background:transparent;border:none;font-size:1.1rem;cursor:pointer;
+  padding:.4rem;line-height:1;border-radius:8px;color:var(--muted)}
+.pw-toggle:hover{background:rgba(11,43,92,.08)}
+.pw-strength{margin-top:.4rem;font-size:.72rem;font-weight:800}
+.btn-primary{width:100%;padding:.9rem;border-radius:11px;border:none;
+  background:linear-gradient(145deg,var(--orange-1),var(--orange-3));
+  color:#fff;font-weight:900;font-size:.95rem;margin-top:1rem;
+  box-shadow:0 10px 26px -8px color-mix(in srgb,var(--orange-1) 70%,transparent);
+  transition:.2s}
+.btn-primary:hover{transform:translateY(-1px);
+  box-shadow:0 14px 30px -8px color-mix(in srgb,var(--orange-1) 85%,transparent)}
+.btn-primary:disabled{opacity:.6;cursor:wait}
+.auth-links{display:flex;justify-content:space-between;margin-top:1.1rem;
+  font-size:.83rem;flex-wrap:wrap;gap:.5rem;font-weight:700}
+.auth-links a{color:var(--orange-2)}
+.auth-links a:hover{text-decoration:underline}
+
+/* ---------- TABLE ---------- */
+.tbl-wrap{overflow-x:auto;margin-top:.8rem}
+.tbl{width:100%;border-collapse:collapse;font-size:.83rem;min-width:520px}
+.tbl th{text-align:left;padding:.7rem;color:#fff;
+  background:linear-gradient(145deg,var(--navy-1),var(--navy-3));
+  font-size:.7rem;text-transform:uppercase;white-space:nowrap;
+  font-weight:900;letter-spacing:.4px}
+.tbl td{padding:.7rem;color:var(--text-2);border-bottom:1px solid var(--border)}
+.tbl tr:hover td{background:rgba(11,43,92,.03)}
+
+/* ---------- STATS ---------- */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:.8rem;margin:.9rem 0}
+.stat{background:linear-gradient(145deg,rgba(11,43,92,.06),
+    color-mix(in srgb,var(--orange-1) 8%,transparent));
+  border:1.5px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+.stat .num{font-size:clamp(1.3rem,4vw,1.7rem);font-weight:900;
+  color:var(--orange-2);line-height:1}
+.stat div:last-child{color:var(--muted);font-size:.7rem;margin-top:.35rem;
+  font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.stat.alert{background:linear-gradient(145deg,rgba(220,38,38,.10),rgba(220,38,38,.04));
+  border-color:var(--danger)}
+.stat.alert .num{color:var(--danger)}
+
+/* ---------- BUTTONS ---------- */
+.btn-small{display:inline-block;padding:.5rem 1.1rem;border-radius:30px;
+  background:linear-gradient(145deg,var(--orange-1),var(--orange-3));
+  color:#fff;font-weight:800;font-size:.8rem;border:none;transition:.2s;cursor:pointer}
+.btn-small:hover{transform:translateY(-1px);
+  box-shadow:0 6px 16px color-mix(in srgb,var(--orange-1) 40%,transparent)}
+.btn-secondary{padding:.5rem 1.1rem;border-radius:10px;background:transparent;
+  color:var(--orange-2);border:2px solid var(--orange-1);font-weight:800;
+  font-size:.8rem;transition:.2s;cursor:pointer;display:inline-block}
+.btn-secondary:hover{background:color-mix(in srgb,var(--orange-1) 8%,transparent)}
+.btn-danger{padding:.5rem 1rem;border-radius:10px;border:none;
+  background:linear-gradient(145deg,#dc2626,#991b1b);color:#fff;
+  font-weight:800;font-size:.78rem;transition:.2s;cursor:pointer}
+.btn-danger.small{padding:.3rem .7rem;font-size:.72rem}
+.btn-danger:hover{transform:translateY(-1px)}
+.btn-accept{padding:.5rem 1rem;border-radius:10px;border:none;
+  background:linear-gradient(145deg,#16a34a,#065f46);color:#fff;
+  font-weight:800;font-size:.78rem;transition:.2s;cursor:pointer}
+.btn-accept:hover{transform:translateY(-1px)}
+
+/* ---------- FORM GRID ---------- */
+.grid-form{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.grid-form input,.grid-form select,.grid-form textarea{
+  padding:.7rem 1rem;border-radius:10px;border:2px solid var(--border);
+  background:var(--bg-1);color:var(--text);font-size:.88rem;outline:none;
+  font-family:inherit;width:100%}
+.grid-form input:focus,.grid-form select:focus,.grid-form textarea:focus{
+  border-color:var(--orange-1)}
+.grid-form textarea{grid-column:1/-1;resize:vertical;min-height:70px}
+.grid-form .full{grid-column:1/-1}
+.grid-form label{display:block;margin:.5rem 0 .3rem;font-weight:800;
+  font-size:.8rem;color:var(--text-2)}
+
+/* ---------- INFO GRID ---------- */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:.9rem 0}
+.info-grid div{padding:.65rem .9rem;background:rgba(11,43,92,.04);
+  border-radius:10px;border:1.5px solid var(--border);
+  font-size:.83rem;word-break:break-word}
+.info-grid div strong{color:var(--text);font-weight:800}
+
+/* ---------- MISC ---------- */
+.muted{color:var(--muted);font-weight:600}
+.empty-state{text-align:center;padding:2.4rem 1rem;color:var(--muted);
+  font-weight:700;grid-column:1/-1}
+.quick-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.9rem}
+.help-list{list-style:none;padding:0}
+.help-list li{padding:.6rem 0;border-bottom:1px solid var(--border);font-weight:600}
+.help-list li strong{color:var(--orange-2);font-weight:900}
+
+/* ---------- FOOTER ---------- */
+.footer{position:relative;z-index:5;margin-top:3rem;padding:1.6rem 1rem;
+  text-align:center;color:#cbd5e1;font-size:.8rem;
+  background:linear-gradient(135deg,var(--navy-1),var(--navy-3));
+  border-top:3px solid var(--orange-1);line-height:1.9;font-weight:600}
+.footer strong{color:var(--orange-1);font-weight:900}
+.footer a{color:var(--orange-1)}
+
+/* ============================================================
+   SETTINGS PAGE (new)
+   ============================================================ */
+.settings-wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:1.1rem}
+.settings-card{background:var(--panel);border:1.5px solid var(--border);border-radius:16px;
+  padding:1.3rem;box-shadow:var(--shadow-sm)}
+.settings-head{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:1.1rem;
+  padding-bottom:.9rem;border-bottom:1.5px dashed var(--border)}
+.settings-icon{width:44px;height:44px;flex-shrink:0;border-radius:12px;
+  background:linear-gradient(145deg,rgba(11,43,92,.10),
+    color-mix(in srgb,var(--orange-1) 12%,transparent));
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.settings-head h3{font-size:1.05rem;font-weight:900;color:var(--navy-1);margin-bottom:.2rem}
+.settings-sub{font-size:.78rem;color:var(--muted);font-weight:600;line-height:1.4}
+.settings-label{display:block;margin:.6rem 0 .35rem;font-weight:800;font-size:.85rem;color:var(--text-2)}
+.settings-select{width:100%;padding:.75rem 1rem;border-radius:11px;border:2px solid var(--border);
+  background:var(--bg-1);color:var(--text);font-size:.9rem;outline:none;font-family:inherit}
+.settings-select:focus{border-color:var(--orange-1);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--orange-1) 15%,transparent)}
+.settings-check{display:flex;align-items:center;gap:.6rem;margin:1rem 0;font-weight:700;
+  font-size:.86rem;cursor:pointer}
+.settings-check input{width:auto;transform:scale(1.15);accent-color:var(--orange-1)}
+.settings-form .btn-primary{margin-top:.6rem}
+
+/* THEME PICKER */
+.theme-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
+.theme-opt{position:relative;background:var(--bg-2);border:2.5px solid var(--border);
+  border-radius:14px;padding:.55rem;display:flex;flex-direction:column;
+  align-items:center;gap:.5rem;transition:.2s;cursor:pointer}
+.theme-opt:hover{border-color:var(--orange-1);transform:translateY(-2px)}
+.theme-opt.active{border-color:var(--orange-1);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--orange-1) 22%,transparent)}
+.theme-opt.active::after{content:"✓";position:absolute;top:.35rem;right:.5rem;
+  width:20px;height:20px;border-radius:50%;background:var(--orange-1);color:#fff;
+  font-weight:900;font-size:.72rem;display:flex;align-items:center;justify-content:center;line-height:1}
+.theme-opt span{font-weight:800;font-size:.76rem;color:var(--text-2);
+  text-transform:uppercase;letter-spacing:.4px}
+.swatch{width:100%;height:46px;border-radius:10px;border:1.5px solid var(--border-strong)}
+.swatch-light{background:linear-gradient(135deg,#0b2b5c 55%,#f97316 55%)}
+.swatch-dark{background:linear-gradient(135deg,#0a0f1e 55%,#f97316 55%)}
+.swatch-ocean{background:linear-gradient(135deg,#0c4a6e 55%,#06b6d4 55%)}
+.swatch-forest{background:linear-gradient(135deg,#14532d 55%,#84cc16 55%)}
+.swatch-sunset{background:linear-gradient(135deg,#7c2d12 55%,#fb923c 55%)}
+.swatch-royal{background:linear-gradient(135deg,#4c1d95 55%,#ec4899 55%)}
+
+/* LANGUAGE SLIDER */
+.lang-slider-wrap{position:relative;overflow:hidden;margin:0 -.3rem}
+.lang-slider{display:flex;gap:.65rem;overflow-x:auto;padding:.4rem .3rem 1rem;
+  scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.lang-slider::-webkit-scrollbar{display:none}
+.lang-chip{flex-shrink:0;scroll-snap-align:center;min-width:105px;
+  padding:.85rem .7rem;border-radius:14px;background:var(--bg-2);
+  border:2.5px solid var(--border);cursor:pointer;transition:.2s;
+  display:flex;flex-direction:column;align-items:center;gap:.25rem;position:relative}
+.lang-chip:hover{border-color:var(--orange-1);transform:translateY(-3px)}
+.lang-chip.active{border-color:var(--orange-1);background:linear-gradient(145deg,
+    color-mix(in srgb,var(--orange-1) 10%,transparent),rgba(11,43,92,.06));
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--orange-1) 20%,transparent)}
+.lang-chip.active::after{content:"✓";position:absolute;top:.35rem;right:.5rem;
+  color:var(--orange-1);font-weight:900;font-size:1rem;line-height:1}
+.lang-native{font-size:1.05rem;font-weight:900;color:var(--text);line-height:1.2}
+.lang-sub{font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px}
+.lang-scroll-hint{text-align:center;font-size:.72rem;color:var(--muted);font-weight:700;
+  margin-top:.3rem;opacity:.8}
+
+/* AUTO-SAVE NOTE */
+.auto-save-note{margin-top:.85rem;font-size:.78rem;font-weight:800;color:var(--success);
+  opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s;
+  text-align:right}
+.auto-save-note.show{opacity:1;transform:translateY(0)}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:900px){
+  .viewer-grid,.info-grid,.grid-form{grid-template-columns:1fr}
+  .viewer-side{position:static}
+  .upi-apps{grid-template-columns:repeat(2,1fr)}
+  .brand-title{font-size:1.35rem}
+  .logo-wrap,.logo-svg{width:52px;height:52px}
+}
+
+@media(max-width:760px){
+  :root{--topbar-h:72px}
+  body{font-size:14.5px}
+  .topbar{padding:0 .55rem;gap:.4rem}
+  .menu-btn{width:40px;height:40px}
+  .menu-btn span{width:20px;height:2.5px}
+  .logo-wrap,.logo-svg{width:44px;height:44px}
+  .brand-title{font-size:1.05rem}
+  .brand-sub{font-size:.55rem;letter-spacing:1.8px}
+  .brand-sub::before,.brand-sub::after{display:none}
+  .search-form{display:none}
+  .btn-top{padding:.35rem .6rem;font-size:.68rem}
+  .btn-top.hide-mobile{display:none}
+  .btn-top.company-access-btn{font-size:.66rem;padding:.35rem .55rem}
+  .content{padding:.9rem .75rem;padding-top:calc(72px + .8rem)}
+  .panel{padding:.9rem;border-radius:14px}
+  .pdf-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.7rem}
+  .pdf-thumb{height:110px;font-size:2.4rem}
+  .pdf-body{padding:.65rem .75rem .85rem}
+  .pdf-body h4{font-size:.8rem}
+  .cat-grid{grid-template-columns:1fr 1fr;gap:.5rem}
+  .hero h1{font-size:1.25rem}
+  .footer{padding:1.3rem .8rem;font-size:.74rem}
+  .auth-card{border-radius:16px}
+  .tbl{font-size:.78rem}
+  .tbl th,.tbl td{padding:.5rem}
+}
+
+@media(max-width:480px){
+  .theme-picker{grid-template-columns:repeat(2,1fr);gap:.55rem}
+  .swatch{height:40px}
+  .lang-chip{min-width:92px;padding:.7rem .5rem}
+  .lang-native{font-size:.95rem}
+  .settings-card{padding:1rem}
+}
+
+@media(max-width:420px){
+  .pdf-grid{grid-template-columns:1fr 1fr}
+  .upi-apps{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR BACKDROP ==================== -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<!-- ==================== TOPBAR ==================== -->
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <a href="{{ url_for('user_home') }}" class="logo-block">
+    <div class="logo-wrap">
+      <svg class="logo-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+          <linearGradient id="ocNavy" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="var(--navy-1)"/>
+            <stop offset="1" stop-color="var(--navy-3)"/>
+          </linearGradient>
+          <linearGradient id="ocOrange" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="var(--orange-1)"/>
+            <stop offset="1" stop-color="var(--orange-2)"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="150" width="90" height="22" rx="11" fill="url(#ocOrange)"/>
+        <rect x="0" y="185" width="105" height="22" rx="11" fill="url(#ocOrange)"/>
+        <rect x="10" y="220" width="90" height="22" rx="11" fill="url(#ocOrange)"/>
+        <ellipse cx="200" cy="205" rx="105" ry="105" fill="url(#ocNavy)"/>
+        <ellipse cx="200" cy="205" rx="65" ry="65" fill="#ffffff"/>
+        <path d="M100 195 Q200 235 305 175" stroke="url(#ocOrange)" stroke-width="26"
+              fill="none" stroke-linecap="round"/>
+        <path d="M260 105 L290 105 L330 235 L370 235"
+              stroke="url(#ocNavy)" stroke-width="20" fill="none"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M315 160 L390 160 L375 220 L325 220 Z"
+              fill="none" stroke="url(#ocNavy)" stroke-width="16"
+              stroke-linejoin="round"/>
+        <rect x="335" y="175" width="42" height="9" rx="4.5" fill="url(#ocOrange)"/>
+        <rect x="335" y="192" width="42" height="9" rx="4.5" fill="url(#ocOrange)"/>
+        <circle cx="325" cy="265" r="16" fill="url(#ocNavy)"/>
+        <circle cx="325" cy="265" r="6" fill="#ffffff"/>
+        <circle cx="370" cy="265" r="16" fill="url(#ocNavy)"/>
+        <circle cx="370" cy="265" r="6" fill="#ffffff"/>
+      </svg>
+    </div>
+    <div class="brand-block">
+      <div class="brand-title">{{ COMPANY_NAME }}</div>
+      <div class="brand-sub">PDF Notes Store</div>
+    </div>
+  </a>
+
+  <form action="{{ url_for('user_search') }}" method="get" class="search-form">
+    <input type="text" name="q" placeholder="Search notes, papers, exams…"
+           value="{{ request.args.get('q','') }}">
+    <button type="submit" aria-label="Search">🔍</button>
+  </form>
+    
+
+  <div class="top-right">
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('user_my_purchases') }}" class="btn-top hide-mobile" data-i18n="nav.my_pdfs">📁 My PDFs</a>
+            <a href="{{ url_for('user_settings') }}" class="btn-top hide-mobile">⚙️ Settings</a>
+      {% if current_user.role == 'president' %}
+        <a href="{{ url_for('president_dashboard') }}" class="btn-top">👑 President</a>
+      {% elif current_user.role == 'ceo' %}
+        <a href="{{ url_for('ceo_dashboard') }}" class="btn-top">🏢 CEO</a>
+      {% elif current_user.role == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn-top">🛡️ Admin</a>
+      {% endif %}
+      <a href="{{ url_for('user_logout') }}" class="btn-top outline">Logout</a>
+    {% else %}
+  <a href="{{ url_for('user_login') }}" class="btn-top">Login</a>
+  <a href="{{ url_for('user_signup') }}" class="btn-top outline">Sign Up</a>
+       {% if not current_user.is_authenticated %}
+       {% endif %} 
+    {% endif %}
+  </div>
+</header>
+
+
+<!-- ==================== SIDEBAR ==================== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <div class="sidebar-title">Menu</div>
+    <button class="sidebar-close" onclick="closeSidebar()" aria-label="Close">×</button>
+  </div>
+  <nav>
+    <a href="{{ url_for('user_home') }}" data-i18n="nav.home">🏠 Home</a>
+    <a href="{{ url_for('user_search') }}">🔍 Search</a>
+
+    {% if current_user.is_authenticated %}
+      <div class="divider"></div>
+      <div class="group-label">👤 My Space</div>
+      <a href="{{ url_for('user_account') }}">👤 My Account</a>
+      <a href="{{ url_for('user_my_purchases') }}">📁 My Purchases</a>
+      <a href="{{ url_for('user_pending_orders') }}">⏳ Pending Orders
+        {% if pending_count %}<span class="badge-dot">{{ pending_count }}</span>{% endif %}
+      </a>
+      <a href="{{ url_for('user_settings') }}">⚙️ Settings</a>
+
+      {% if current_user.role == 'president' %}
+        <div class="divider"></div>
+        <div class="group-label">👑 President Panel</div>
+        <a href="{{ url_for('president_dashboard') }}" class="admin-link">👑 Dashboard</a>
+        <a href="{{ url_for('president_ceo_codes') }}" class="admin-link">🎫 CEO Codes</a>
+        <a href="{{ url_for('president_control') }}" class="admin-link">🎛️ Full Control</a>
+        <a href="{{ url_for('president_activity') }}" class="admin-link">📊 Activity Log</a>
+        <a href="{{ url_for('president_settings') }}" class="admin-link">⚙️ Site Settings</a>
+      {% elif current_user.role == 'ceo' %}
+        <div class="divider"></div>
+        <div class="group-label">🏢 CEO Panel</div>
+        <a href="{{ url_for('ceo_dashboard') }}" class="admin-link">🏢 Dashboard</a>
+        <a href="{{ url_for('ceo_admins') }}" class="admin-link">🛡️ Manage Admins</a>
+        <a href="{{ url_for('ceo_activity') }}" class="admin-link">📊 Activity Log</a>
+        <a href="{{ url_for('ceo_lockdown') }}" class="admin-link">🔒 Emergency Lockdown</a>
+      {% elif current_user.role == 'admin' %}
+  <div class="divider"></div>
+  <div class="group-label">🛡️ Staff Portal</div>
+  <a href="{{ url_for('staff_dashboard') }}" class="admin-link">🛡️ Open Dashboard</a>
+  <a href="{{ url_for('staff_orders') }}" class="admin-link">
+    💰 Orders{% if pending_count %} <span class="badge-dot">{{ pending_count }}</span>{% endif %}
+  </a>
+  <a href="{{ url_for('staff_feedback') }}" class="admin-link">
+    💬 Feedback{% if unread_feedback %} <span class="badge-dot">{{ unread_feedback }}</span>{% endif %}
+  </a>
+{% endif %}
+    {% endif %}
+
+    <div class="divider"></div>
+    <div class="group-label">📚 Sections</div>
+    {% for s in nav_sections %}
+      <a href="{{ url_for('user_category', slug=s.slug) }}">{{ s.icon }} {{ s.name }}</a>
+    {% endfor %}
+
+    <div class="divider"></div>
+    <div class="group-label">ℹ️ Info</div>
+<a href="{{ url_for('user_about') }}">ℹ️ About Us</a>
+<a href="{{ url_for('user_contact') }}">📞 Contact Us</a>
+<a href="{{ url_for('user_feedback') }}">💬 Feedback</a>
+<a href="{{ url_for('user_terms') }}">📜 Terms & Conditions</a>
+
+<div class="divider"></div>
+<div class="group-label">🔐 Company</div>
+<a href="{{ url_for('admin_login') }}" class="admin-link">
+  🔐 Admin Login
+</a>
+  </nav>
+</aside>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<main class="content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {# ============================================================
+   OMNI CART — SAARE PAGES YAHAN
+   Endpoint ke hisaab se dikhega
+   ============================================================ #}
+
+{# ==================== 1. USER HOME ==================== #}
+{% if request.endpoint == 'user_home' %}
+<div class="hero">
+  <div class="hero-inner">
+    <h1 data-i18n="home.hero_title">🛒 India's Complete PDF Notes Store</h1>
+    <p>Class 4–12, SSC, Assam Police, UPSC, APSC, Banking —
+       <b>{{ FREE_PREVIEW_PAGES }} pages free preview</b>, full PDF after purchase.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><b>{{ total }}+</b><span>PDF Notes</span></div>
+      <div class="hero-stat"><b>{{ sections|length }}</b><span>Sections</span></div>
+      <div class="hero-stat"><b>{{ FREE_PREVIEW_PAGES }}</b><span>Free Pages</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="section-title">🔥 Featured PDFs</div>
+  <div class="pdf-grid">
+    {% if featured %}
+      {% for p in featured %}
+        <a href="{{ url_for('user_pdf_view', pdf_id=p.id) }}" class="pdf-card">
+          <div class="pdf-thumb">
+            <span class="cat-tag">{{ p.section.name if p.section else '' }}</span>
+            {{ p.icon or '📄' }}
+            <span class="pages-tag">{{ p.total_pages or '?' }} pages</span>
+            {% if not p.is_free %}<span class="lock-badge">🔒</span>{% endif %}
+          </div>
+          <div class="pdf-body">
+            <h4>{{ p.title }}</h4>
+            <div class="p-sub">{{ p.subcategory|replace('_',' ')|title if p.subcategory else 'Notes' }}</div>
+            <div class="pdf-foot">
+              <div class="pdf-price">
+                {% if p.is_free %}<span class="free-tag">Free</span>{% else %}₹{{ '%.0f'|format(p.price) }}{% endif %}
+              </div>
+              <span class="btn-view-sm">View →</span>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">Abhi koi PDF upload nahi hua. Admin panel se upload karein.</div>
+    {% endif %}
+  </div>
+</div>
+
+
+
+
+{# ==================== 2. USER SEARCH ==================== #}
+{% elif request.endpoint == 'user_search' %}
+<div class="panel">
+  <div class="section-title">🔍 Search Results</div>
+  <form method="get" style="display:flex;gap:.6rem;margin-bottom:1rem">
+    <input type="text" name="q" value="{{ q }}" placeholder="Notes, exams, sections…"
+           autofocus style="flex:1;padding:.75rem 1rem;border-radius:11px;border:2px solid var(--border);font-size:.9rem">
+    <button type="submit" class="btn-small">Search</button>
+  </form>
+  {% if q %}
+    <p class="muted" style="margin-bottom:1rem">
+      "<b>{{ q }}</b>" ke liye <b>{{ results|length }}</b> results mile
+    </p>
+  {% endif %}
+  <div class="pdf-grid">
+    {% if results %}
+      {% for p in results %}
+        <a href="{{ url_for('user_pdf_view', pdf_id=p.id) }}" class="pdf-card">
+          <div class="pdf-thumb">
+            <span class="cat-tag">{{ p.section.name if p.section else '' }}</span>
+            {{ p.icon or '📄' }}
+            <span class="pages-tag">{{ p.total_pages or '?' }} pages</span>
+          </div>
+          <div class="pdf-body">
+            <h4>{{ p.title }}</h4>
+            <div class="pdf-foot">
+              <div class="pdf-price">
+                {% if p.is_free %}<span class="free-tag">Free</span>{% else %}₹{{ '%.0f'|format(p.price) }}{% endif %}
+              </div>
+              <span class="btn-view-sm">View →</span>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        {% if q %}Koi result nahi mila.{% else %}Search box me kuch likhein.{% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+
+{# ==================== 3. USER CATEGORY ==================== #}
+{% elif request.endpoint == 'user_category' %}
+<div class="panel">
+  <div style="font-size:.82rem;color:var(--muted);font-weight:700;margin-bottom:.5rem">
+    <a href="{{ url_for('user_home') }}" style="color:var(--orange-2)">Home</a>
+    / {{ section.group }} / {{ section.name }}
+  </div>
+  <div class="section-title">{{ section.icon }} {{ section.name }} ({{ pdfs|length }} PDFs)</div>
+  <div class="chip-row">
+    <a href="{{ url_for('user_category', slug=section.slug) }}?sub="
+       class="chip {% if not current_sub %}active{% endif %}">All</a>
+    <a href="{{ url_for('user_category', slug=section.slug) }}?sub=notes"
+       class="chip {% if current_sub == 'notes' %}active{% endif %}">Notes</a>
+    <a href="{{ url_for('user_category', slug=section.slug) }}?sub=question_paper"
+       class="chip {% if current_sub == 'question_paper' %}active{% endif %}">Question Papers</a>
+    <a href="{{ url_for('user_category', slug=section.slug) }}?sub=solution"
+       class="chip {% if current_sub == 'solution' %}active{% endif %}">Solutions</a>
+  </div>
+  <div class="pdf-grid">
+    {% if pdfs %}
+      {% for p in pdfs %}
+        <a href="{{ url_for('user_pdf_view', pdf_id=p.id) }}" class="pdf-card">
+          <div class="pdf-thumb">
+            <span class="cat-tag">{{ p.subcategory|replace('_',' ')|title if p.subcategory else '' }}</span>
+            {{ p.icon or '📄' }}
+            <span class="pages-tag">{{ p.total_pages or '?' }} pages</span>
+            {% if not p.is_free %}<span class="lock-badge">🔒</span>{% endif %}
+          </div>
+          <div class="pdf-body">
+            <h4>{{ p.title }}</h4>
+            <div class="pdf-foot">
+              <div class="pdf-price">
+                {% if p.is_free %}<span class="free-tag">Free</span>{% else %}₹{{ '%.0f'|format(p.price) }}{% endif %}
+              </div>
+              <span class="btn-view-sm">View →</span>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">Is section me koi PDF nahi hai.</div>
+    {% endif %}
+  </div>
+</div>
+
+
+{# ==================== 4. PDF VIEW (with lock) ==================== #}
+{% elif request.endpoint == 'user_pdf_view' %}
+<div class="viewer-grid">
+<div class="viewer-frame">
+  <iframe id="pdfFrame"
+          src="{{ url_for('user_pdf_stream', pdf_id=pdf.id) }}#toolbar=1&navpanes=0"
+          title="{{ pdf.title }}"></iframe>
+
+  {% if not owns and not pdf.is_free %}
+  <!-- Preview end bar — shown below the PDF -->
+  <div class="preview-end-bar">
+    <div class="peb-icon">🔒</div>
+    <div class="peb-text">
+      <b>Free Preview Complete</b>
+      <span>Aapne {{ FREE_PREVIEW_PAGES }} pages free dekh liye — full PDF unlock karein</span>
+    </div>
+    <a href="{{ url_for('payment_checkout', pdf_id=pdf.id) }}" class="peb-btn">
+      🔓 Unlock Full PDF — ₹{{ '%.0f'|format(pdf.price) }}
+    </a>
+  </div>
+  {% endif %}
+</div>
+  <aside class="viewer-side">
+    <div class="side-card">
+      <h3>{{ pdf.title }}</h3>
+      <div class="meta">{{ section_name }} • {{ pdf.total_pages or '?' }} pages</div>
+      {% if owns %}
+        <div class="owns-badge">✅ Aap is PDF ke owner hain</div>
+        <a href="{{ url_for('user_pdf_download', pdf_id=pdf.id) }}" class="btn-dl">
+          ⬇️ Download Full PDF
+        </a>
+      {% elif pdf.is_free %}
+        <div class="owns-badge" style="background:rgba(234,179,8,.10);color:#92400e;border-color:rgba(234,179,8,.5)">
+          🎁 Yeh PDF free hai
+        </div>
+        <a href="{{ url_for('payment_checkout', pdf_id=pdf.id) }}" class="btn-buy">
+          ⬇️ Get Free PDF
+        </a>
+      {% else %}
+        <div class="preview-note">
+          🎁 <b>Free Preview:</b> Sirf pehle <b>{{ FREE_PREVIEW_PAGES }} pages</b> dikh rahe hain.
+        </div>
+        <div class="price-block">
+          <span class="lbl">Price</span>
+          <span class="amt">₹{{ '%.0f'|format(pdf.price) }}</span>
+        </div>
+        <a href="{{ url_for('payment_checkout', pdf_id=pdf.id) }}" class="btn-buy">
+          🔓 Unlock Full PDF
+        </a>
+        <p style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:.5rem">
+          🔒 Secure payment via Razorpay / UPI
+        </p>
+      {% endif %}
+      {% if pdf.description %}
+        <p style="margin-top:.8rem;font-size:.82rem;color:var(--text-2);line-height:1.5">
+          {{ pdf.description }}
+        </p>
+      {% endif %}
+    </div>
+  </aside>
+</div>
+
+
+{# ==================== 5. USER LOGIN ==================== #}
+{% elif request.endpoint == 'user_login' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🔐 Login</h2>
+    <form method="post">
+      <label>Mobile Number</label>
+      <input type="tel" name="mobile" maxlength="10" pattern="[6-9][0-9]{9}"
+             placeholder="10-digit mobile" required>
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="password" id="lgPw" required>
+        <button type="button" class="pw-toggle" onclick="togglePw('lgPw', this)">👁️</button>
+      </div>
+      <button type="submit" class="btn-primary">Login</button>
+    </form>
+        <a href="{{ url_for('user_home') }}" class="btn-cancel">
+      ← Cancel
+    </a>
+    <script>
+document.addEventListener('DOMContentLoaded', function(){
+  const wrap = document.querySelector('.auth-wrap');
+  if(wrap && window.location.pathname.includes('login')){
+    wrap.addEventListener('click', function(e){
+      // Agar click form ke bahar hua
+      if(!e.target.closest('.auth-card')){
+        window.location.href = "{{ url_for('user_home') }}";
+      }
+    });
+  }
+});
+</script>
+    <div class="auth-links">
+      <a href="{{ url_for('user_forgot_password') }}">Forgot Password?</a>
+      <a href="{{ url_for('user_signup') }}">Sign Up →</a>
+    </div>
+    
+  </div>
+</div>
+
+
+{# ==================== 6. USER SIGNUP ==================== #}
+{# ==================== 6. USER SIGNUP (STEP 1 — Form) ==================== #}
+{% elif request.endpoint == 'user_signup' %}
+<div class="auth-wrap">
+  <div class="auth-card wide">
+    <h2>📝 Create Account</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      Email + Mobile dono verify karne padenge — OTP aayega.
+    </p>
+    <form method="post">
+      <label>Full Name</label>
+      <input type="text" name="full_name" required autofocus>
+
+      <label>Email</label>
+      <input type="email" name="email" required placeholder="you@example.com">
+
+      <label>Mobile</label>
+      <input type="tel" name="mobile" maxlength="10" pattern="[6-9][0-9]{9}"
+             required placeholder="10-digit mobile">
+
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="password" id="suPw" required
+               oninput="checkPwStrength('suPw','pwStrength')"
+               autocomplete="new-password">
+        <button type="button" class="pw-toggle" onclick="togglePw('suPw', this)">👁️</button>
+      </div>
+      <small class="hint">Min 8, 1 Capital, 1 small, 1 number, 1 special</small>
+      <div class="pw-strength" id="pwStrength"></div>
+
+      <label>Confirm Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="confirm_password" id="suCpw" required
+               oninput="checkPwMatch('suPw','suCpw','pwMatch')"
+               autocomplete="new-password">
+        <button type="button" class="pw-toggle" onclick="togglePw('suCpw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="pwMatch"></div>
+
+      <button type="submit" class="btn-primary">📨 Send OTP</button>
+    </form>
+    <div class="auth-links">
+      <span>Already have account?</span>
+      <a href="{{ url_for('user_login') }}">Login →</a>
+    </div>
+  </div>
+</div>
+
+
+{# ==================== 6b. SIGNUP VERIFY (STEP 2 — Firebase OTP) ==================== #}
+{% elif request.endpoint == 'user_signup_verify' %}
+<div class="auth-wrap">
+  <div class="auth-card wide">
+    <h2>🔢 Verify Signup</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      Hum ne bheja hai:<br>
+      📧 <b>{{ signup_email }}</b><br>
+      📱 <b>{{ signup_mobile }}</b>
+    </p>
+
+    <!-- reCAPTCHA container (Firebase needs this) -->
+    <div id="recaptcha-container"></div>
+
+    <form id="signupVerifyForm" onsubmit="return false;">
+      <label>📧 Email OTP</label>
+      <input type="text" name="email_otp" id="emailOtp" maxlength="6"
+             pattern="[0-9]{6}" placeholder="000000" required autofocus
+             style="text-align:center;font-size:1.4rem;letter-spacing:.5rem;
+                    font-family:monospace;font-weight:900">
+
+      <label style="margin-top:1rem">📱 Mobile OTP (Firebase SMS)</label>
+      <input type="text" name="mobile_otp" id="mobileOtp" maxlength="6"
+             pattern="[0-9]{6}" placeholder="000000" required
+             style="text-align:center;font-size:1.4rem;letter-spacing:.5rem;
+                    font-family:monospace;font-weight:900">
+
+      <div id="firebaseStatus" style="margin-top:.8rem;padding:.7rem;
+           background:rgba(59,130,246,.08);border:1.5px solid rgba(59,130,246,.3);
+           border-radius:8px;color:#1d4ed8;font-size:.82rem;font-weight:700">
+        ⏳ Firebase OTP bhej rahe hain…
+      </div>
+
+      <div id="firebaseError" style="display:none;margin-top:.8rem;
+           padding:.7rem;background:rgba(239,68,68,.1);border:1.5px solid
+           rgba(239,68,68,.4);border-radius:8px;color:#b91c1c;font-size:.82rem;
+           font-weight:700"></div>
+
+      <div style="margin-top:1.2rem;padding:1rem;background:rgba(59,130,246,.06);
+                  border:2px solid rgba(59,130,246,.3);border-radius:10px">
+        <label style="display:flex;align-items:flex-start;gap:.6rem;
+                      font-weight:700;font-size:.85rem;cursor:pointer">
+          <input type="checkbox" name="agree_terms" id="agreeTerms" required
+                 style="margin-top:.15rem;transform:scale(1.2);
+                        accent-color:var(--orange-1);flex-shrink:0">
+          <span style="line-height:1.5">
+            Main <a href="{{ url_for('user_terms') }}" target="_blank"
+                    style="color:var(--orange-2);font-weight:800;
+                           text-decoration:underline">Terms & Conditions</a>
+            aur
+            <a href="{{ url_for('user_about') }}" target="_blank"
+               style="color:var(--orange-2);font-weight:800;
+                      text-decoration:underline">Privacy Policy</a>
+            padh liya hai aur se agree karta/karti hoon.
+          </span>
+        </label>
+      </div>
+
+      <button type="button" onclick="verifyFirebaseSignup()"
+              id="verifyBtn" class="btn-primary" style="margin-top:1rem">
+        ✅ Verify & Create Account
+      </button>
+    </form>
+
+    <form method="post" action="{{ url_for('user_signup_resend') }}"
+          style="margin-top:1rem;text-align:center">
+      <button type="submit"
+              style="background:transparent;border:none;color:var(--orange-2);
+                     font-weight:800;font-size:.85rem;cursor:pointer;
+                     text-decoration:underline">
+        📨 Email OTP dobara bhejo
+      </button>
+    </form>
+
+    <div class="auth-links">
+      <a href="{{ url_for('user_signup') }}">← Change details</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// FIREBASE PHONE AUTH — Signup Verify
+// ============================================================
+let confirmationResult = null;
+let recaptchaVerifier = null;
+
+async function sendFirebaseOtp(phoneNumber) {
+  const statusEl = document.getElementById('firebaseStatus');
+  const errorEl = document.getElementById('firebaseError');
+
+  if (typeof firebase === 'undefined' || !firebase.auth) {
+    statusEl.style.display = 'none';
+    showFirebaseError('Firebase SDK load nahi hua. Page reload karein.');
+    return false;
+  }
+
+  const fullPhone = phoneNumber.startsWith('+') ? phoneNumber : '+91' + phoneNumber;
+
+  try {
+    recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+      'recaptcha-container',
+      { size: 'invisible' }
+    );
+
+    confirmationResult = await firebase.auth().signInWithPhoneNumber(
+      fullPhone, recaptchaVerifier
+    );
+
+    statusEl.innerHTML = '✅ Firebase OTP bhej diya — SMS check karein.';
+    statusEl.style.background = 'rgba(16,185,129,.08)';
+    statusEl.style.borderColor = 'rgba(16,185,129,.3)';
+    statusEl.style.color = '#047857';
+    console.log('✅ Firebase OTP sent to', fullPhone);
+    return true;
+  } catch (error) {
+    console.error('Firebase OTP error:', error);
+    statusEl.style.display = 'none';
+    showFirebaseError('Firebase OTP send fail: ' + (error.message || error.code));
+    return false;
+  }
+}
+
+async function verifyFirebaseSignup() {
+  const emailOtp = document.getElementById('emailOtp').value.trim();
+  const mobileOtp = document.getElementById('mobileOtp').value.trim();
+  const agreeTerms = document.getElementById('agreeTerms').checked;
+  const btn = document.getElementById('verifyBtn');
+
+  document.getElementById('firebaseError').style.display = 'none';
+
+  if (!emailOtp || emailOtp.length !== 6) {
+    showFirebaseError('6-digit Email OTP daalein.');
+    return;
+  }
+  if (!mobileOtp || mobileOtp.length !== 6) {
+    showFirebaseError('6-digit Mobile OTP daalein.');
+    return;
+  }
+  if (!agreeTerms) {
+    showFirebaseError('Terms & Conditions accept karna zaroori hai.');
+    return;
+  }
+  if (!confirmationResult) {
+    showFirebaseError('Firebase OTP send nahi hua. Page reload karein.');
+    return;
+  }
+
+  // Step 1: Firebase phone OTP verify
+  let idToken = null;
+  try {
+    const result = await confirmationResult.confirm(mobileOtp);
+    idToken = await result.user.getIdToken();
+    console.log('✅ Firebase phone verified');
+  } catch (error) {
+    console.error('Firebase confirm error:', error);
+    showFirebaseError('Mobile OTP galat hai ya expire ho gaya.');
+    return;
+  }
+
+  // Step 2: Backend ko bhejo
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Verifying…';
+
+  try {
+    const formData = new FormData();
+    formData.append('email_otp', emailOtp);
+    formData.append('mobile_otp', mobileOtp);
+    formData.append('agree_terms', agreeTerms ? 'on' : '');
+    formData.append('firebase_id_token', idToken);
+
+    const res = await fetch('/signup/verify', {
+      method: 'POST',
+      body: formData,
+      redirect: 'follow'
+    });
+
+    // Flask redirect karega — page navigate karo
+    if (res.redirected) {
+      window.location.href = res.url;
+    } else {
+      const html = await res.text();
+      document.open();
+      document.write(html);
+      document.close();
+    }
+  } catch (error) {
+    showFirebaseError('Server error: ' + error.message);
+    btn.disabled = false;
+    btn.innerHTML = '✅ Verify & Create Account';
+  }
+}
+
+function showFirebaseError(msg) {
+  const el = document.getElementById('firebaseError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// Page load pe automatic Firebase OTP bhejo
+document.addEventListener('DOMContentLoaded', function() {
+  const mobile = "{{ signup_mobile or '' }}";
+  if (mobile) {
+    // 500ms wait karo taaki reCAPTCHA container ready ho
+    setTimeout(function() {
+      sendFirebaseOtp(mobile);
+    }, 500);
+  }
+});
+</script>
+
+
+{# ==================== 7. FORGOT PASSWORD ==================== #}
+{# ==================== 7. FORGOT PASSWORD (STEP 1) ==================== #}
+{% elif request.endpoint == 'user_forgot_password' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🔑 Reset Password</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      Apna registered mobile daalein — hum OTP bhejenge.
+    </p>
+    <form method="post">
+      <label>Registered Mobile</label>
+      <input type="tel" name="mobile" maxlength="10" pattern="[6-9][0-9]{9}"
+             placeholder="10-digit mobile" required>
+      <small class="hint">OTP 10 minute tak valid rahega.</small>
+      <button type="submit" class="btn-primary">📱 Send OTP</button>
+    </form>
+    <div class="auth-links">
+      <a href="{{ url_for('user_login') }}">← Back to Login</a>
+    </div>
+  </div>
+</div>
+
+
+{# ==================== 7b. VERIFY OTP (STEP 2) ==================== #}
+{% elif request.endpoint == 'user_verify_otp' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🔢 Verify OTP</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      Mobile pe bheja gaya 6-digit OTP daalein.
+    </p>
+    <form method="post">
+      <label>OTP Code</label>
+      <input type="text" name="otp" maxlength="6" pattern="[0-9]{6}"
+             placeholder="6-digit OTP" required autofocus
+             style="text-align:center;font-size:1.5rem;letter-spacing:.5rem;
+                    font-family:monospace;font-weight:900">
+      
+      <label style="margin-top:1.2rem">New Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="new_password" id="fpPw" required
+               oninput="checkPwStrength('fpPw','fpStrength')">
+        <button type="button" class="pw-toggle" onclick="togglePw('fpPw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="fpStrength"></div>
+      
+      <label>Confirm New Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="confirm_password" id="fpCpw" required
+               oninput="checkPwMatch('fpPw','fpCpw','fpMatch')">
+        <button type="button" class="pw-toggle" onclick="togglePw('fpCpw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="fpMatch"></div>
+      
+      <button type="submit" class="btn-primary">🔓 Reset Password</button>
+    </form>
+    <div class="auth-links">
+      <a href="{{ url_for('user_forgot_password') }}">← Resend OTP</a>
+      <a href="{{ url_for('user_login') }}">Back to Login</a>
+    </div>
+  </div>
+</div>
+{# ==================== STAFF FORGOT PASSWORD ==================== #}
+{# ==================== STAFF FORGOT PASSWORD (STEP 1) ==================== #}
+{% elif request.endpoint == 'staff_forgot_password' %}
+<div class="auth-wrap">
+  <div class="auth-card" style="border-color:#f59e0b">
+    <h2 style="color:#b45309">🔑 Reset Staff Password</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      Admin / CEO / President — registered mobile pe OTP bhejenge.
+    </p>
+    <form method="post">
+      <label>Registered Mobile</label>
+      <input type="tel" name="mobile" maxlength="10" pattern="[6-9][0-9]{9}" required
+             placeholder="10-digit mobile">
+      <small class="hint">OTP 10 minute tak valid rahega.</small>
+      <button type="submit" class="btn-primary"
+              style="background:linear-gradient(145deg,#f59e0b,#b45309)">
+        📱 Send OTP
+      </button>
+    </form>
+
+    <a href="{{ url_for('admin_login') }}" class="btn-cancel">← Back to Login</a>
+
+    <div style="margin-top:1.2rem;padding:.8rem;background:rgba(234,179,8,.10);
+                border:1.5px dashed var(--orange-1);border-radius:10px;
+                font-size:.76rem;color:var(--text-2);line-height:1.5;text-align:center">
+      <b>ℹ️ Security:</b> Sirf staff accounts (admin/CEO/president) ke liye.
+      OTP verify hone ke baad hi password reset hoga.
+    </div>
+  </div>
+</div>
+
+
+{# ==================== STAFF VERIFY OTP (STEP 2) ==================== #}
+{% elif request.endpoint == 'staff_verify_otp' %}
+<div class="auth-wrap">
+  <div class="auth-card" style="border-color:#f59e0b">
+    <h2 style="color:#b45309">🔢 Staff OTP Verify</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      Mobile pe bheja gaya 6-digit OTP daalein.
+    </p>
+    <form method="post">
+      <label>OTP Code</label>
+      <input type="text" name="otp" maxlength="6" pattern="[0-9]{6}"
+             placeholder="6-digit OTP" required autofocus
+             style="text-align:center;font-size:1.5rem;letter-spacing:.5rem;
+                    font-family:monospace;font-weight:900">
+      
+      <label style="margin-top:1.2rem">New Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="new_password" id="sfPw" required
+               oninput="checkPwStrength('sfPw','sfStrength')">
+        <button type="button" class="pw-toggle" onclick="togglePw('sfPw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="sfStrength"></div>
+      
+      <label>Confirm New Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="confirm_password" id="sfCpw" required
+               oninput="checkPwMatch('sfPw','sfCpw','sfMatch')">
+        <button type="button" class="pw-toggle" onclick="togglePw('sfCpw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="sfMatch"></div>
+      
+      <button type="submit" class="btn-primary"
+              style="background:linear-gradient(145deg,#f59e0b,#b45309)">
+        🔓 Reset Password
+      </button>
+    </form>
+
+    <div class="auth-links">
+      <a href="{{ url_for('staff_forgot_password') }}">← Resend OTP</a>
+      <a href="{{ url_for('admin_login') }}">Back to Login</a>
+    </div>
+  </div>
+</div>
+
+{# ==================== 8. USER ACCOUNT ==================== #}
+{% elif request.endpoint == 'user_account' %}
+<div class="panel">
+  <div class="section-title">👤 My Account</div>
+  <div class="info-grid">
+    <div><strong>Name</strong><br>{{ current_user.full_name }}</div>
+    <div><strong>Email</strong><br>{{ current_user.email }}</div>
+    <div><strong>Mobile</strong><br>{{ current_user.mobile }}</div>
+    <div><strong>Role</strong><br>{{ current_user.role.title() }}</div>
+    <div><strong>Purchases</strong><br>{{ purchases_count }} PDFs</div>
+    <div><strong>Member since</strong><br>{{ current_user.created_at.strftime('%d %b %Y') if current_user.created_at else '—' }}</div>
+  </div>
+  <div class="quick-links" style="margin-top:1.2rem">
+    <a href="{{ url_for('user_my_purchases') }}" class="btn-small">📁 My Purchases</a>
+    <a href="{{ url_for('user_pending_orders') }}" class="btn-secondary">⏳ Pending Orders</a>
+    <a href="{{ url_for('user_change_password') }}" class="btn-secondary">🔒 Change Password</a>
+    <a href="{{ url_for('user_settings') }}" class="btn-secondary">⚙️ Settings</a>
+  </div>
+</div>
+
+
+{# ==================== 9. CHANGE PASSWORD ==================== #}
+{% elif request.endpoint == 'user_change_password' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🔒 Change Password</h2>
+    <form method="post">
+      <label>Old Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="old_password" id="cpOld" required>
+        <button type="button" class="pw-toggle" onclick="togglePw('cpOld', this)">👁️</button>
+      </div>
+      <label>New Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="new_password" id="cpNew" required
+               oninput="checkPwStrength('cpNew','cpStrength')">
+        <button type="button" class="pw-toggle" onclick="togglePw('cpNew', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="cpStrength"></div>
+      <label>Confirm New Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="confirm_password" id="cpCpw" required
+               oninput="checkPwMatch('cpNew','cpCpw','cpMatch')">
+        <button type="button" class="pw-toggle" onclick="togglePw('cpCpw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="cpMatch"></div>
+      <button type="submit" class="btn-primary">Change Password</button>
+    </form>
+  </div>
+</div>
+
+
+{# ==================== 10. MY PURCHASES ==================== #}
+{% elif request.endpoint == 'user_my_purchases' %}
+<div class="panel">
+  <div class="section-title">📁 My Purchases ({{ purchases|length }})</div>
+  <div class="pdf-grid">
+    {% if pdfs %}
+      {% for p in pdfs %}
+        <a href="{{ url_for('user_pdf_view', pdf_id=p.id) }}" class="pdf-card">
+          <div class="pdf-thumb">
+            <span class="cat-tag">{{ p.section.name if p.section else '' }}</span>
+            {{ p.icon or '📄' }}
+            <span class="pages-tag">{{ p.total_pages or '?' }} pages</span>
+          </div>
+          <div class="pdf-body">
+            <h4>{{ p.title }}</h4>
+            <div class="pdf-foot">
+              <div class="pdf-price" style="color:var(--success);font-size:.85rem">✅ Owned</div>
+              <span class="btn-view-sm">Open →</span>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        Abhi tak koi purchase nahi.<br>
+        <a href="{{ url_for('user_home') }}" style="color:var(--orange-2);font-weight:800">
+          Browse PDFs →
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+
+{# ==================== 11. PENDING ORDERS ==================== #}
+{% elif request.endpoint == 'user_pending_orders' %}
+<div class="panel">
+  <div class="section-title">⏳ Pending Orders ({{ purchases|length }})</div>
+  {% if purchases %}
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>PDF</th><th>Amount</th><th>Method</th><th>Status</th><th>Created</th></tr>
+        </thead>
+        <tbody>
+          {% for p in purchases %}
+            <tr>
+              <td><b>{{ p.pdf.title if p.pdf else '—' }}</b></td>
+              <td>₹{{ '%.0f'|format(p.amount) }}</td>
+              <td>{{ (p.method or '—').replace('_',' ').title() }}</td>
+              <td>
+                {% if p.status == 'pending' %}
+                  <span style="color:var(--warning);font-weight:800">⏳ Pending</span>
+                {% elif p.status == 'awaiting_verification' %}
+                  <span style="color:var(--warning);font-weight:800">🔍 Awaiting Verification</span>
+                {% else %}{{ p.status }}{% endif %}
+              </td>
+              <td>{{ p.created_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">Koi pending order nahi hai.</div>
+  {% endif %}
+</div>
+
+
+{# ==================== 12. SETTINGS ==================== #}
+{% elif request.endpoint == 'user_settings' %}
+<div class="settings-wrap">
+
+  {# ---------- SECTION 1: APPEARANCE ---------- #}
+  <div class="settings-card">
+    <div class="settings-head">
+      <span class="settings-icon">🎨</span>
+      <div>
+        <h3 data-i18n="settings.appearance">Appearance</h3>
+        <p class="settings-sub" data-i18n="settings.appearance_sub">Theme turant badal jayegi — save ki zarurat nahi.</p>
+      </div>
+    </div>
+       <div class="theme-picker" id="themePicker">
+      <button type="button" class="theme-opt {% if current_user.theme == 'light' %}active{% endif %}" data-theme="light">
+        <div class="swatch swatch-light"></div>
+        <span data-i18n="settings.light">Light</span>
+      </button>
+      <button type="button" class="theme-opt {% if current_user.theme == 'dark' %}active{% endif %}" data-theme="dark">
+        <div class="swatch swatch-dark"></div>
+        <span data-i18n="settings.dark">Dark</span>
+      </button>
+      <button type="button" class="theme-opt {% if current_user.theme == 'ocean' %}active{% endif %}" data-theme="ocean">
+        <div class="swatch swatch-ocean"></div>
+        <span>Ocean</span>
+      </button>
+      <button type="button" class="theme-opt {% if current_user.theme == 'forest' %}active{% endif %}" data-theme="forest">
+        <div class="swatch swatch-forest"></div>
+        <span>Forest</span>
+      </button>
+      <button type="button" class="theme-opt {% if current_user.theme == 'sunset' %}active{% endif %}" data-theme="sunset">
+        <div class="swatch swatch-sunset"></div>
+        <span>Sunset</span>
+      </button>
+      <button type="button" class="theme-opt {% if current_user.theme == 'royal' %}active{% endif %}" data-theme="royal">
+        <div class="swatch swatch-royal"></div>
+        <span>Royal</span>
+      </button>
+    </div>
+  </div>
+
+  {# ---------- SECTION 2: LANGUAGE ---------- #}
+  <div class="settings-card">
+    <div class="settings-head">
+      <span class="settings-icon">🌐</span>
+      <div>
+        <h3 data-i18n="settings.language">Language</h3>
+        <p class="settings-sub" data-i18n="settings.language_sub">Slider se language chuniye — poori website turant badal jayegi.</p>
+      </div>
+    </div>
+
+    <div class="lang-slider-wrap">
+      <div class="lang-slider" id="langSlider">
+        <button type="button" class="lang-chip {% if current_user.language == 'en' %}active{% endif %}" data-lang="en">
+          <span class="lang-native">English</span>
+          <span class="lang-sub">English</span>
+        </button>
+        <button type="button" class="lang-chip {% if current_user.language == 'hi' %}active{% endif %}" data-lang="hi">
+          <span class="lang-native">हिंदी</span>
+          <span class="lang-sub">Hindi</span>
+        </button>
+        <button type="button" class="lang-chip {% if current_user.language == 'as' %}active{% endif %}" data-lang="as">
+          <span class="lang-native">অসমীয়া</span>
+          <span class="lang-sub">Assamese</span>
+        </button>
+        <button type="button" class="lang-chip {% if current_user.language == 'te' %}active{% endif %}" data-lang="te">
+          <span class="lang-native">తెలుగు</span>
+          <span class="lang-sub">Telugu</span>
+        </button>
+        <button type="button" class="lang-chip {% if current_user.language == 'pa' %}active{% endif %}" data-lang="pa">
+          <span class="lang-native">ਪੰਜਾਬੀ</span>
+          <span class="lang-sub">Punjabi</span>
+        </button>
+        <button type="button" class="lang-chip {% if current_user.language == 'or' %}active{% endif %}" data-lang="or">
+          <span class="lang-native">ଓଡ଼ିଆ</span>
+          <span class="lang-sub">Odia</span>
+        </button>
+      </div>
+      <div class="lang-scroll-hint">← <span data-i18n="settings.scroll_hint">Scroll to choose</span> →</div>
+    </div>
+    <div class="auto-save-note" id="langSavedNote">✅ <span data-i18n="settings.saved">Saved</span></div>
+  </div>
+
+  {# ---------- SECTION 3: PRIVACY (with save button) ---------- #}
+  <div class="settings-card">
+    <div class="settings-head">
+      <span class="settings-icon">🔒</span>
+      <div>
+        <h3 data-i18n="settings.privacy">Privacy</h3>
+        <p class="settings-sub" data-i18n="settings.privacy_sub">Privacy level aur notifications — save karke lagu honge.</p>
+      </div>
+    </div>
+    <form method="post" class="settings-form">
+      <label class="settings-label" data-i18n="settings.privacy_level">Privacy Level</label>
+      <select name="privacy_level" class="settings-select">
+        <option value="normal" {% if current_user.privacy_level == 'normal' %}selected{% endif %} data-i18n-opt="settings.normal">Normal</option>
+        <option value="high" {% if current_user.privacy_level == 'high' %}selected{% endif %} data-i18n-opt="settings.high">High</option>
+        <option value="maximum" {% if current_user.privacy_level == 'maximum' %}selected{% endif %} data-i18n-opt="settings.maximum">Maximum</option>
+      </select>
+
+      <label class="settings-check">
+        <input type="checkbox" name="notifications_enabled"
+               {% if current_user.notifications_enabled %}checked{% endif %}>
+        <span data-i18n="settings.notifications">Email notifications enable karein</span>
+      </label>
+
+      <button type="submit" class="btn-primary" data-i18n="settings.save_privacy">
+        Save Privacy Settings
+      </button>
+    </form>
+  </div>
+
+</div>
+
+<!-- Current language for JS -->
+<script>
+  window.__userLang = "{{ current_user.language or 'en' }}";
+  window.__userTheme = "{{ current_user.theme or 'light' }}";
+</script>
+
+
+{# ==================== 13. CONTACT US ==================== #}
+{% elif request.endpoint == 'user_contact' %}
+<div class="panel" style="max-width:700px;margin:0 auto">
+  <div class="section-title">📞 Contact Us</div>
+  <p style="color:var(--text-2);font-size:.88rem;margin-bottom:1rem">
+    Kisi bhi query, complaint ya help ke liye humse sampark karein:
+  </p>
+  <ul class="help-list">
+    <li>📱 <strong>Phone:</strong>
+      <a href="tel:{{ COMPANY_PHONE }}" style="color:var(--orange-2)">{{ COMPANY_PHONE }}</a>
+    </li>
+    <li>📧 <strong>Email:</strong>
+      <a href="mailto:{{ COMPANY_EMAIL }}?subject=OmniCart%20Support%20Request"
+         style="color:var(--orange-2)">{{ COMPANY_EMAIL }}</a>
+      <br><small class="muted">Click karke Gmail khulega.</small>
+    </li>
+    <li>🕒 <strong>Hours:</strong> 9 AM – 9 PM (Mon–Sat)</li>
+    <li>🏢 <strong>Company:</strong> {{ COMPANY_LEGAL }}</li>
+  </ul>
+  <div class="quick-links" style="margin-top:1.2rem">
+    <a href="{{ url_for('user_feedback') }}" class="btn-small">💬 Send Feedback</a>
+  </div>
+</div>
+
+
+{# ==================== 14. FEEDBACK ==================== #}
+{% elif request.endpoint == 'user_feedback' %}
+<div class="panel" style="max-width:700px;margin:0 auto">
+  <div class="section-title">💬 Send Feedback</div>
+  <p style="color:var(--text-2);font-size:.87rem;margin-bottom:1rem">
+    Apna suggestion, complaint ya feedback yahan bhejein.
+  </p>
+  <form method="post">
+    <div class="grid-form">
+      <div>
+        <label>Your Name *</label>
+        <input type="text" name="name"
+               value="{{ current_user.full_name if current_user.is_authenticated else '' }}" required>
+      </div>
+      <div>
+        <label>Email (optional)</label>
+        <input type="email" name="email"
+               value="{{ current_user.email if current_user.is_authenticated else '' }}">
+      </div>
+      <div>
+        <label>Mobile (optional)</label>
+        <input type="tel" name="mobile" maxlength="10"
+               value="{{ current_user.mobile if current_user.is_authenticated else '' }}">
+      </div>
+      <div>
+        <label>Subject</label>
+        <input type="text" name="subject" placeholder="Short title">
+      </div>
+      <div class="full">
+        <label>Your Message *</label>
+        <textarea name="message" rows="5" required placeholder="Apna message likhein…"></textarea>
+      </div>
+    </div>
+    <button type="submit" class="btn-primary" style="margin-top:1.2rem">Send Feedback</button>
+  </form>
+</div>
+
+
+{# ==================== 15. TERMS ==================== #}
+{% elif request.endpoint == 'user_terms' %}
+<div class="panel" style="max-width:800px;margin:0 auto">
+  <div class="section-title">📜 Terms & Conditions</div>
+  <p class="muted" style="font-size:.82rem;margin-bottom:1rem">Last updated: 2026</p>
+  <h3>1. Purchases are Non-Refundable</h3>
+  <p>Saare PDF notes ek baar purchase hone ke baad <b>non-refundable</b> hain.
+     Kripya purchase karne se pehle free preview ({{ free_pages }} pages) zaroor check karein.</p>
+  <h3>2. Content Ownership</h3>
+  <p>Saare PDFs {{ company_legal }} ki intellectual property hain.
+     Inhe reshare, resell ya redistribute karna strictly prohibited hai.</p>
+  <h3>3. Account Responsibility</h3>
+  <p>Aap apne account ki security ke liye zimmedar hain. Password kisi ke saath share na karein.</p>
+  <h3>4. Payment</h3>
+  <p>Payment Razorpay / UPI ke through secure tareeke se liya jata hai.
+     Koi bhi unauthorized transaction ki responsibility user ki hogi.</p>
+  <h3>5. Privacy</h3>
+  <p>Aapki personal information (naam, email, mobile) encrypted rehti hai
+     aur kisi third party ke saath share nahi ki jaati.</p>
+  <h3>6. Contact</h3>
+  <p>Kisi bhi query ke liye: <b>{{ company_email }}</b> | <b>{{ company_phone }}</b></p>
+</div>
+
+
+{# ==================== 16. ABOUT ==================== #}
+{% elif request.endpoint == 'user_about' %}
+<div class="panel" style="max-width:800px;margin:0 auto">
+  <div class="section-title">ℹ️ About {{ COMPANY_NAME }}</div>
+  <p><b>{{ COMPANY_NAME }}</b> ek e-commerce platform hai jo students aur
+     competitive exam candidates ke liye high-quality PDF notes provide karta hai.</p>
+  <h3>📚 What We Offer</h3>
+  <ul style="padding-left:1.4rem;line-height:2">
+    <li>Class 4–12 school notes</li>
+    <li>SSC exams (GD, MTS, CHSL, CGL)</li>
+    <li>Assam Police (Constable, SI, Other)</li>
+    <li>UPSC & APSC</li>
+    <li>Banking (IBPS, SBI)</li>
+  </ul>
+  <h3>🎁 Free Preview</h3>
+  <p>Har PDF ke pehle <b>{{ free_pages }} pages</b> bilkul free hain.</p>
+  <h3>🏢 Company</h3>
+  <p>Ye platform <b>{{ company_legal }}</b> ke under register hai aur
+     isi company ke dwara operate kiya jata hai.</p>
+  <p style="margin-top:1.5rem;text-align:center;color:var(--muted);font-size:.82rem">
+    © {{ current_year }} {{ company_legal }} — All Rights Reserved
+  </p>
+</div>
+
+
+{# ==================== 17. PAYMENT CHECKOUT ==================== #}
+{% elif request.endpoint == 'payment_checkout' %}
+<div class="panel" style="max-width:700px;margin:0 auto">
+  <div class="section-title">💳 Payment</div>
+
+  <div class="info-grid">
+    <div><strong>PDF</strong><br>{{ pdf.title }}</div>
+    <div><strong>Section</strong><br>{{ pdf.section.name if pdf.section else '—' }}</div>
+    <div><strong>Pages</strong><br>{{ pdf.total_pages or '?' }}</div>
+    <div><strong>Amount</strong><br><span style="color:var(--orange-2);font-weight:900;font-size:1.1rem">₹{{ '%.0f'|format(pdf.price) }}</span></div>
+  </div>
+
+  <div class="pay-tabs">
+    <button class="pay-tab active" data-tab="razorpay" onclick="switchPayTab('razorpay')">
+      💳 Razorpay
+    </button>
+    <button class="pay-tab" data-tab="upi" onclick="switchPayTab('upi')">
+      📱 UPI Apps
+    </button>
+    <button class="pay-tab" data-tab="qr" onclick="switchPayTab('qr')">
+      🔳 QR Code
+    </button>
+  </div>
+
+  {# ---- Razorpay pane ---- #}
+  <div class="pay-pane active" id="pane-razorpay">
+    {% if razorpay_ready %}
+      <p style="color:var(--text-2);font-size:.88rem;margin-bottom:1rem">
+        Secure payment via Razorpay — Card, NetBanking, UPI, Wallet sab supported.
+      </p>
+  <button class="btn-buy" onclick="payWithRazorpay({{ pdf.id }})">
+        💳 Pay ₹{{ '%.0f'|format(pdf.price) }} via Razorpay
+      </button>
+    {% else %}
+      <p style="color:var(--warning);font-weight:700">
+        ⚠️ Razorpay configured nahi hai. Admin se contact karein ya UPI use karein.
+      </p>
+    {% endif %}
+  </div>
+
+  {# ---- UPI apps pane ---- #}
+  <div class="pay-pane" id="pane-upi">
+    <p style="color:var(--text-2);font-size:.88rem;margin-bottom:.5rem">
+      Apna UPI app choose karein:
+    </p>
+   {# Dynamic payment methods from DB #}
+{% if payment_methods %}
+ <div class="upi-apps">
+   {% for m in payment_methods %}
+  <div class="upi-app" onclick="selectMethod({{ m.id }})">
+  <div class="app-icon">{{ m.icon }}</div>
+  <div class="app-name">{{ m.name }}</div>
+</div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted">Koi payment method available nahi. Admin se contact karein.</p>
+{% endif %}
+    <p style="text-align:center;color:var(--muted);font-size:.8rem;margin-top:.6rem">
+      App open hone ke baad payment karein, phir "I have paid" par click karein.
+    </p>
+    <button class="btn-buy" style="margin-top:1rem" onclick="confirmUpiPayment({{ pdf.id }})">
+      ✅ I have paid
+    </button>
+  </div>
+
+  {# ---- QR pane ---- #}
+  <div class="pay-pane" id="pane-qr">
+    <p style="color:var(--text-2);font-size:.88rem;margin-bottom:.5rem">
+      Kisi bhi UPI app se QR scan karein:
+    </p>
+    {% if qr_data_uri %}
+      <div class="qr-box">
+        <img src="{{ qr_data_uri }}" alt="UPI QR Code">
+        <div class="upi-id-row">
+          <code id="upiValue">{{ upi_id }}</code>
+          <button class="btn-copy" onclick="copyText('{{ upi_id }}', 'UPI ID')">📋 Copy</button>
+        </div>
+      </div>
+    {% else %}
+      <p class="muted">QR available nahi. `qrcode` library install karein.</p>
+    {% endif %}
+    <button class="btn-buy" style="margin-top:1rem" onclick="confirmUpiPayment({{ pdf.id }})">
+      ✅ I have paid
+    </button>
+  </div>
+</div>
+
+<script type="application/json" id="pendingPaymentData">
+  {
+    "amount": {{ pdf.price }},
+    "title": {{ pdf.title|tojson }},
+    "pdf_id": {{ pdf.id }},
+    "default_upi_id": {{ upi_id|tojson }},
+    "default_payee": {{ upi_payee|tojson }},
+    "selected_upi_id": {{ upi_id|tojson }},
+    "selected_payee": {{ upi_payee|tojson }},
+    "selected_method_name": "OmniCart UPI"
+  }
+</script>
+
+<script>
+  // Ab JS me parse karo
+  window.__pendingPayment = JSON.parse(
+    document.getElementById('pendingPaymentData').textContent
+  );
+</script>
+
+
+{# ==================== 18. ADMIN LOGIN ==================== #}
+{% elif request.endpoint == 'admin_login' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🛡️ Company Access</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      Admin / CEO / President login
+    </p>
+    <form method="post">
+      <label>Mobile</label>
+      <input type="tel" name="mobile" maxlength="10" required>
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="password" id="adLgPw" required>
+        <button type="button" class="pw-toggle" onclick="togglePw('adLgPw', this)">👁️</button>
+      </div>
+      <button type="submit" class="btn-primary">Login</button>
+    </form>
+
+    <a href="{{ url_for('user_home') }}" class="btn-cancel">← Cancel</a>
+
+    <div class="auth-links" style="justify-content:center">
+      <a href="{{ url_for('staff_forgot_password') }}">🔑 Forgot Password?</a>
+    </div>
+
+    <div class="auth-links" style="justify-content:center;flex-direction:column;gap:.6rem;text-align:center">
+      <a href="{{ url_for('ceo_signup') }}" style="color:var(--orange-2);font-weight:800">
+        🆕 New Company Member? Create Account →
+      </a>
+      <div style="display:flex;justify-content:space-between;width:100%;margin-top:.4rem">
+        <a href="{{ url_for('user_login') }}">← User</a>
+        <a href="{{ url_for('ceo_login') }}">CEO Login</a>
+        <a href="{{ url_for('president_login') }}">👑 President</a>
+      </div>
+    </div>
+
+    <div style="margin-top:1.2rem;padding:.8rem;background:rgba(234,179,8,.10);
+                border:1.5px dashed var(--orange-1);border-radius:10px;
+                font-size:.76rem;color:var(--text-2);line-height:1.5;text-align:center">
+      <b>ℹ️ Note:</b> Naya account banane ke liye President se
+      <b>invite code</b> lena zaroori hai.
+    </div>
+  </div>
+</div>
+
+{# ==================== 19. ADMIN DASHBOARD ==================== #}
+{% elif request.endpoint == 'admin_dashboard' %}
+<div class="panel">
+  <div class="section-title">🛡️ Admin Dashboard</div>
+  <p class="muted">Welcome, {{ current_user.full_name }}</p>
+  <div class="stats-grid">
+    <div class="stat"><div class="num">{{ stats.total_users }}</div><div>Users</div></div>
+    <div class="stat"><div class="num">{{ stats.completed_purchases }}</div><div>Sales</div></div>
+    <div class="stat"><div class="num">₹{{ '%.0f'|format(stats.revenue) }}</div><div>Revenue</div></div>
+    <div class="stat"><div class="num">{{ stats.today_users }}</div><div>Today Users</div></div>
+    <div class="stat"><div class="num">₹{{ '%.0f'|format(stats.today_revenue) }}</div><div>Today ₹</div></div>
+    {% if stats.pending_purchases %}
+      <div class="stat alert"><div class="num">{{ stats.pending_purchases }}</div><div>Pending</div></div>
+    {% endif %}
+    {% if stats.unread_feedback %}
+      <div class="stat alert"><div class="num">{{ stats.unread_feedback }}</div><div>Feedback</div></div>
+    {% endif %}
+  </div>
+  <div class="quick-links">
+    <a href="{{ url_for('admin_upload') }}" class="btn-small">⬆️ Upload PDF</a>
+    <a href="{{ url_for('admin_pdfs') }}" class="btn-secondary">📚 Manage PDFs</a>
+    <a href="{{ url_for('admin_sections') }}" class="btn-secondary">📂 Sections</a>
+    <a href="{{ url_for('admin_orders') }}" class="btn-secondary">💰 Orders</a>
+  </div>
+</div>
+
+{% if pending_upi %}
+<div class="panel">
+  <div class="section-title">⏳ Pending UPI Claims</div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>ID</th><th>User</th><th>PDF</th><th>Amount</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for p in pending_upi %}
+          <tr>
+            <td>#{{ p.id }}</td>
+            <td>{{ p.user.full_name if p.user else '—' }}</td>
+            <td>{{ p.pdf.title[:35] if p.pdf else '—' }}</td>
+            <td>₹{{ '%.0f'|format(p.amount) }}</td>
+            <td><a href="{{ url_for('admin_order_detail', order_id=p.id) }}" class="btn-small">View</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+
+{# ==================== 20. ADMIN UPLOAD ==================== #}
+{% elif request.endpoint == 'admin_upload' %}
+<div class="panel" style="max-width:700px;margin:0 auto">
+  <div class="section-title">⬆️ Upload New PDF</div>
+  <form method="post" enctype="multipart/form-data">
+    <div class="grid-form">
+      <div class="full">
+        <label>Title *</label>
+        <input type="text" name="title" required>
+      </div>
+      <div class="full">
+        <label>Description</label>
+        <textarea name="description" rows="3"></textarea>
+      </div>
+      <div>
+        <label>Section *</label>
+        <select name="section_id" required>
+          <option value="">— Select —</option>
+          {% for s in sections %}
+            <option value="{{ s.id }}">{{ s.icon }} {{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Type</label>
+        <select name="subcategory">
+          <option value="notes">Notes</option>
+          <option value="question_paper">Question Paper</option>
+          <option value="solution">Solution</option>
+        </select>
+      </div>
+      <div>
+        <label>Price (₹) *</label>
+        <input type="number" name="price" value="49" min="0" step="1" required>
+      </div>
+      <div>
+        <label>Icon (emoji)</label>
+        <input type="text" name="icon" value="📄" maxlength="4">
+      </div>
+      <div class="full">
+        <label style="display:flex;align-items:center;gap:.5rem">
+          <input type="checkbox" name="is_featured" style="width:auto"> Featured
+        </label>
+      </div>
+      <div class="full">
+        <label>PDF File *</label>
+        <input type="file" name="pdf_file" accept=".pdf" required>
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Upload</button>
+  </form>
+</div>
+
+
+{# ==================== 21. ADMIN PDFs ==================== #}
+{% elif request.endpoint == 'admin_pdfs' %}
+<div class="panel">
+  <div class="section-title">📚 Manage PDFs ({{ pdfs|length }})</div>
+  <div class="quick-links" style="margin-bottom:1rem">
+    <a href="{{ url_for('admin_upload') }}" class="btn-small">⬆️ Upload New</a>
+    <a href="{{ url_for('admin_pdfs') }}" class="btn-secondary">All</a>
+    <a href="{{ url_for('admin_pdfs') }}?status=active" class="btn-secondary">Active</a>
+    <a href="{{ url_for('admin_pdfs') }}?status=inactive" class="btn-secondary">Inactive</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr><th>ID</th><th>Title</th><th>Section</th><th>Price</th><th>Pages</th><th>Active</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for p in pdfs %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td><b>{{ p.title[:45] }}</b></td>
+            <td>{{ p.section.name if p.section else '—' }}</td>
+            <td>₹{{ '%.0f'|format(p.price) }}</td>
+            <td>{{ p.total_pages or '—' }}</td>
+            <td>{% if p.is_active %}✅{% else %}❌{% endif %}</td>
+            <td>
+              <a href="{{ url_for('admin_pdf_edit', pdf_id=p.id) }}" class="btn-small" style="font-size:.7rem">Edit</a>
+              <form method="post" action="{{ url_for('admin_pdf_toggle', pdf_id=p.id) }}" style="display:inline">
+                <button class="btn-secondary" style="font-size:.7rem;padding:.3rem .6rem">Toggle</button>
+              </form>
+              <form method="post" action="{{ url_for('admin_pdf_delete', pdf_id=p.id) }}" style="display:inline"
+                    onsubmit="return confirm('Delete PDF permanently?')">
+                <button class="btn-danger small">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        {% if not pdfs %}
+          <tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">No PDFs yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 22. ADMIN PDF EDIT ==================== #}
+{% elif request.endpoint == 'admin_pdf_edit' %}
+<div class="panel" style="max-width:700px;margin:0 auto">
+  <div class="section-title">✏️ Edit PDF #{{ pdf.id }}</div>
+  <form method="post" enctype="multipart/form-data">
+    <div class="grid-form">
+      <div class="full">
+        <label>Title *</label>
+        <input type="text" name="title" value="{{ pdf.title }}" required>
+      </div>
+      <div class="full">
+        <label>Description</label>
+        <textarea name="description" rows="3">{{ pdf.description or '' }}</textarea>
+      </div>
+      <div>
+        <label>Section *</label>
+        <select name="section_id" required>
+          {% for s in sections %}
+            <option value="{{ s.id }}" {% if s.id == pdf.section_id %}selected{% endif %}>
+              {{ s.icon }} {{ s.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Type</label>
+        <select name="subcategory">
+          <option value="notes" {% if pdf.subcategory == 'notes' %}selected{% endif %}>Notes</option>
+          <option value="question_paper" {% if pdf.subcategory == 'question_paper' %}selected{% endif %}>Question Paper</option>
+          <option value="solution" {% if pdf.subcategory == 'solution' %}selected{% endif %}>Solution</option>
+        </select>
+      </div>
+      <div>
+        <label>Price (₹) *</label>
+        <input type="number" name="price" value="{{ pdf.price|int }}" required>
+      </div>
+      <div>
+        <label>Icon</label>
+        <input type="text" name="icon" value="{{ pdf.icon }}" maxlength="4">
+      </div>
+      <div class="full">
+        <label style="display:flex;align-items:center;gap:.5rem">
+          <input type="checkbox" name="is_featured" style="width:auto" {% if pdf.is_featured %}checked{% endif %}>
+          Featured
+        </label>
+        <label style="display:flex;align-items:center;gap:.5rem">
+          <input type="checkbox" name="is_active" style="width:auto" {% if pdf.is_active %}checked{% endif %}>
+          Active
+        </label>
+      </div>
+      <div class="full">
+        <label>Replace PDF (optional)</label>
+        <input type="file" name="pdf_file" accept=".pdf">
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Save Changes</button>
+  </form>
+</div>
+
+
+{# ==================== 23. ADMIN SECTIONS ==================== #}
+{% elif request.endpoint == 'admin_sections' %}
+<div class="panel">
+  <div class="section-title">📂 Sections ({{ section_data|length }})</div>
+  <div class="quick-links" style="margin-bottom:1rem">
+    <a href="{{ url_for('admin_section_create') }}" class="btn-small">➕ New Section</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr><th>ID</th><th>Icon</th><th>Name</th><th>Slug</th><th>Group</th><th>PDFs</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for item in section_data %}
+          <tr>
+            <td>{{ item.section.id }}</td>
+            <td style="font-size:1.2rem">{{ item.section.icon }}</td>
+            <td><b>{{ item.section.name }}</b></td>
+            <td><code>{{ item.section.slug }}</code></td>
+            <td>{{ item.section.group }}</td>
+            <td>{{ item.active_count }}/{{ item.pdf_count }}</td>
+            <td>
+              <a href="{{ url_for('admin_section_edit', section_id=item.section.id) }}"
+                 class="btn-small" style="font-size:.7rem">Edit</a>
+              <form method="post" action="{{ url_for('admin_section_delete', section_id=item.section.id) }}"
+                    style="display:inline" onsubmit="return confirm('Delete?')">
+                <button class="btn-danger small">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 24. ADMIN SECTION CREATE ==================== #}
+{% elif request.endpoint == 'admin_section_create' %}
+<div class="panel" style="max-width:600px;margin:0 auto">
+  <div class="section-title">➕ Create New Section</div>
+  <form method="post">
+    <div class="grid-form">
+      <div class="full">
+        <label>Name *</label>
+        <input type="text" name="name" required placeholder="e.g. Class 10">
+      </div>
+      <div class="full">
+        <label>Slug * (lowercase, numbers, _ only)</label>
+        <input type="text" name="slug" required pattern="[a-z0-9_]+" placeholder="e.g. class_10">
+      </div>
+      <div>
+        <label>Group</label>
+        <input type="text" name="group" value="General" placeholder="e.g. School">
+      </div>
+      <div>
+        <label>Icon (emoji)</label>
+        <input type="text" name="icon" value="📄" maxlength="4">
+      </div>
+      <div class="full">
+        <label>Description</label>
+        <textarea name="description" rows="2"></textarea>
+      </div>
+      <div class="full">
+        <label>Display Order</label>
+        <input type="number" name="display_order" value="0">
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Create Section</button>
+  </form>
+</div>
+
+
+{# ==================== 25. ADMIN SECTION EDIT ==================== #}
+{% elif request.endpoint == 'admin_section_edit' %}
+<div class="panel" style="max-width:600px;margin:0 auto">
+  <div class="section-title">✏️ Edit Section</div>
+  <form method="post">
+    <div class="grid-form">
+      <div class="full">
+        <label>Name *</label>
+        <input type="text" name="name" value="{{ section.name }}" required>
+      </div>
+      <div class="full">
+        <label>Slug</label>
+        <input type="text" name="slug" value="{{ section.slug }}" pattern="[a-z0-9_]+">
+      </div>
+      <div>
+        <label>Group</label>
+        <input type="text" name="group" value="{{ section.group }}">
+      </div>
+      <div>
+        <label>Icon</label>
+        <input type="text" name="icon" value="{{ section.icon }}" maxlength="4">
+      </div>
+      <div class="full">
+        <label>Description</label>
+        <textarea name="description" rows="2">{{ section.description or '' }}</textarea>
+      </div>
+      <div>
+        <label>Display Order</label>
+        <input type="number" name="display_order" value="{{ section.display_order }}">
+      </div>
+      <div>
+        <label style="display:flex;align-items:center;gap:.5rem;margin-top:1.8rem">
+          <input type="checkbox" name="is_active" style="width:auto" {% if section.is_active %}checked{% endif %}>
+          Active
+        </label>
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Save Changes</button>
+  </form>
+</div>
+
+
+{# ==================== 26. ADMIN ORDERS ==================== #}
+{% elif request.endpoint == 'admin_orders' %}
+<div class="panel">
+  <div class="section-title">💰 Orders</div>
+  <div class="chip-row" style="margin-bottom:1rem">
+    <a href="{{ url_for('admin_orders') }}" class="chip {% if not current_status %}active{% endif %}">
+      All ({{ status_counts.all }})
+    </a>
+    <a href="{{ url_for('admin_orders') }}?status=completed" class="chip {% if current_status == 'completed' %}active{% endif %}">
+      ✅ Completed ({{ status_counts.completed }})
+    </a>
+    <a href="{{ url_for('admin_orders') }}?status=awaiting_verification" class="chip {% if current_status == 'awaiting_verification' %}active{% endif %}">
+      🔍 Awaiting ({{ status_counts.awaiting_verification }})
+    </a>
+    <a href="{{ url_for('admin_orders') }}?status=pending" class="chip {% if current_status == 'pending' %}active{% endif %}">
+      ⏳ Pending ({{ status_counts.pending }})
+    </a>
+    <a href="{{ url_for('admin_orders') }}?status=failed" class="chip {% if current_status == 'failed' %}active{% endif %}">
+      ❌ Failed ({{ status_counts.failed }})
+    </a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr><th>ID</th><th>User</th><th>PDF</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for p in purchases %}
+          <tr>
+            <td>#{{ p.id }}</td>
+            <td>{{ p.user.full_name if p.user else '—' }}</td>
+            <td>{{ p.pdf.title[:30] if p.pdf else '—' }}</td>
+            <td>₹{{ '%.0f'|format(p.amount) }}</td>
+            <td>{{ (p.method or '—').replace('_',' ').title() }}</td>
+            <td><b>{{ p.status }}</b></td>
+            <td>{{ p.created_at.strftime('%d %b, %H:%M') }}</td>
+            <td><a href="{{ url_for('admin_order_detail', order_id=p.id) }}" class="btn-small" style="font-size:.7rem">View</a></td>
+          </tr>
+        {% endfor %}
+        {% if not purchases %}
+          <tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">No orders.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 27. ADMIN ORDER DETAIL ==================== #}
+{% elif request.endpoint == 'admin_order_detail' %}
+<div class="panel" style="max-width:700px;margin:0 auto">
+  <div class="section-title">💰 Order #{{ order.id }}</div>
+  <div class="info-grid">
+    <div><strong>User</strong><br>{{ order.user.full_name if order.user else '—' }}</div>
+    <div><strong>Mobile</strong><br>{{ order.user.mobile if order.user else '—' }}</div>
+    <div><strong>PDF</strong><br>{{ order.pdf.title if order.pdf else '—' }}</div>
+    <div><strong>Amount</strong><br>₹{{ '%.0f'|format(order.amount) }}</div>
+    <div><strong>Method</strong><br>{{ (order.method or '—').replace('_',' ').title() }}</div>
+    <div><strong>Status</strong><br><b>{{ order.status }}</b></div>
+    <div><strong>Created</strong><br>{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+    <div><strong>Completed</strong><br>{{ order.completed_at.strftime('%d %b %Y, %I:%M %p') if order.completed_at else '—' }}</div>
+    {% if order.razorpay_order_id %}
+      <div><strong>RZP Order</strong><br><code>{{ order.razorpay_order_id }}</code></div>
+    {% endif %}
+    {% if order.razorpay_payment_id %}
+      <div><strong>RZP Payment</strong><br><code>{{ order.razorpay_payment_id }}</code></div>
+    {% endif %}
+    {% if order.upi_reference %}
+      <div><strong>UPI Ref</strong><br><code>{{ order.upi_reference }}</code></div>
+    {% endif %}
+  </div>
+  {% if order.status in ('pending', 'awaiting_verification') %}
+    <div class="quick-links" style="margin-top:1.2rem">
+      <form method="post" action="{{ url_for('admin_order_verify', order_id=order.id) }}">
+        <button class="btn-accept">✅ Verify Payment</button>
+      </form>
+      <form method="post" action="{{ url_for('admin_order_fail', order_id=order.id) }}">
+        <button class="btn-danger">❌ Mark Failed</button>
+      </form>
+    </div>
+  {% elif order.status == 'completed' %}
+    <div class="quick-links" style="margin-top:1.2rem">
+      <form method="post" action="{{ url_for('admin_order_refund', order_id=order.id) }}">
+        <button class="btn-danger">↩️ Mark Refunded</button>
+      </form>
+    </div>
+  {% endif %}
+</div>
+
+
+{# ==================== 28. ADMIN USERS ==================== #}
+{% elif request.endpoint == 'admin_users' %}
+<div class="panel">
+  <div class="section-title">👥 Users</div>
+  <form method="get" style="display:flex;gap:.5rem;margin-bottom:1rem">
+    <input type="text" name="q" value="{{ search }}" placeholder="Search name/email/mobile"
+           style="flex:1;padding:.7rem 1rem;border-radius:10px;border:2px solid var(--border)">
+    <button type="submit" class="btn-small">Search</button>
+  </form>
+  <div class="chip-row">
+    <a href="{{ url_for('admin_users') }}?role=all" class="chip {% if current_role == 'all' %}active{% endif %}">All ({{ role_counts.all }})</a>
+    <a href="{{ url_for('admin_users') }}?role=user" class="chip {% if current_role == 'user' %}active{% endif %}">Users ({{ role_counts.user }})</a>
+    <a href="{{ url_for('admin_users') }}?role=admin" class="chip {% if current_role == 'admin' %}active{% endif %}">Admins ({{ role_counts.admin }})</a>
+    <a href="{{ url_for('admin_users') }}?role=ceo" class="chip {% if current_role == 'ceo' %}active{% endif %}">CEOs ({{ role_counts.ceo }})</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Mobile</th><th>Email</th><th>Role</th><th>Banned</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.full_name }}</td>
+            <td>{{ u.mobile }}</td>
+            <td>{{ u.email }}</td>
+            <td><b>{{ u.role.title() }}</b></td>
+            <td>{% if u.is_banned %}🚫{% else %}✅{% endif %}</td>
+            <td><a href="{{ url_for('admin_user_detail', user_id=u.id) }}" class="btn-small" style="font-size:.7rem">View</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 29. ADMIN USER DETAIL ==================== #}
+{% elif request.endpoint == 'admin_user_detail' %}
+<div class="panel">
+  <div class="section-title">👤 User: {{ user.full_name }}</div>
+  <div class="info-grid">
+    <div><strong>ID</strong><br>#{{ user.id }}</div>
+    <div><strong>Mobile</strong><br>{{ user.mobile }}</div>
+    <div><strong>Email</strong><br>{{ user.email }}</div>
+    <div><strong>Role</strong><br>{{ user.role.title() }}</div>
+    <div><strong>Joined</strong><br>{{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</div>
+    <div><strong>Total Spent</strong><br>₹{{ '%.0f'|format(total_spent) }}</div>
+    <div><strong>Banned</strong><br>{% if user.is_banned %}🚫 Yes{% else %}✅ No{% endif %}</div>
+    <div><strong>Last Login</strong><br>{{ user.last_login.strftime('%d %b, %H:%M') if user.last_login else '—' }}</div>
+  </div>
+  <div class="quick-links" style="margin-top:1rem">
+    {% if user.is_banned %}
+      <form method="post" action="{{ url_for('admin_user_unban', user_id=user.id) }}">
+        <button class="btn-accept">✅ Unban</button>
+      </form>
+    {% else %}
+      <form method="post" action="{{ url_for('admin_user_ban', user_id=user.id) }}">
+        <button class="btn-danger">🚫 Ban User</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if purchases %}
+<div class="panel">
+  <div class="section-title">📦 Recent Purchases</div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Order</th><th>PDF</th><th>₹</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for p in purchases %}
+          <tr>
+            <td>#{{ p.id }}</td>
+            <td>{{ p.pdf.title[:35] if p.pdf else '—' }}</td>
+            <td>₹{{ '%.0f'|format(p.amount) }}</td>
+            <td>{{ p.status }}</td>
+            <td>{{ p.created_at.strftime('%d %b %Y') }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+
+{# ==================== 30. ADMIN FEEDBACK ==================== #}
+{% elif request.endpoint == 'admin_feedback' %}
+<div class="panel">
+  <div class="section-title">💬 Feedback Inbox</div>
+  <div class="chip-row">
+    <a href="{{ url_for('admin_feedback') }}?status=all" class="chip {% if current_status == 'all' %}active{% endif %}">All ({{ status_counts.all }})</a>
+    <a href="{{ url_for('admin_feedback') }}?status=new" class="chip {% if current_status == 'new' %}active{% endif %}">🔴 New ({{ status_counts.new }})</a>
+    <a href="{{ url_for('admin_feedback') }}?status=read" class="chip {% if current_status == 'read' %}active{% endif %}">Read ({{ status_counts.read }})</a>
+    <a href="{{ url_for('admin_feedback') }}?status=resolved" class="chip {% if current_status == 'resolved' %}active{% endif %}">✅ Resolved ({{ status_counts.resolved }})</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>ID</th><th>Name</th><th>Subject</th><th>Status</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for f in feedbacks %}
+          <tr>
+            <td>#{{ f.id }}</td>
+            <td>{{ f.name or '—' }}</td>
+            <td>{{ (f.subject or f.message[:40]) }}</td>
+            <td><b>{{ f.status }}</b></td>
+            <td>{{ f.created_at.strftime('%d %b, %H:%M') }}</td>
+            <td><a href="{{ url_for('admin_feedback_detail', fb_id=f.id) }}" class="btn-small" style="font-size:.7rem">View</a></td>
+          </tr>
+        {% endfor %}
+        {% if not feedbacks %}
+          <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted)">No feedback.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 31. ADMIN FEEDBACK DETAIL ==================== #}
+{% elif request.endpoint == 'admin_feedback_detail' %}
+<div class="panel" style="max-width:750px;margin:0 auto">
+  <div class="section-title">💬 Feedback #{{ fb.id }}</div>
+  <div class="info-grid">
+    <div><strong>Name</strong><br>{{ fb.name or '—' }}</div>
+    <div><strong>Mobile</strong><br>{{ fb.mobile or '—' }}</div>
+    <div><strong>Email</strong><br>{{ fb.email or '—' }}</div>
+    <div><strong>Subject</strong><br>{{ fb.subject or '—' }}</div>
+    <div><strong>Status</strong><br><b>{{ fb.status }}</b></div>
+    <div><strong>Date</strong><br>{{ fb.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+  </div>
+  <h3>Message</h3>
+  <p style="padding:1rem;background:rgba(11,43,92,.04);border-radius:10px;line-height:1.6">
+    {{ fb.message }}
+  </p>
+  {% if fb.admin_reply %}
+    <h3>Previous Reply</h3>
+    <p style="padding:1rem;background:rgba(5,150,105,.06);border-radius:10px;line-height:1.6">
+      {{ fb.admin_reply }}
+    </p>
+  {% endif %}
+  <form method="post" action="{{ url_for('admin_feedback_reply', fb_id=fb.id) }}" style="margin-top:1rem">
+    <label style="font-weight:800;font-size:.85rem">Reply</label>
+    <textarea name="reply" rows="4" required
+              style="width:100%;padding:.75rem;border-radius:10px;border:2px solid var(--border);font-family:inherit;font-size:.9rem"></textarea>
+    <div class="quick-links" style="margin-top:.8rem">
+      <button type="submit" class="btn-accept">Send Reply</button>
+    </div>
+  </form>
+  <form method="post" action="{{ url_for('admin_feedback_delete', fb_id=fb.id) }}"
+        onsubmit="return confirm('Delete this feedback?')" style="margin-top:.5rem">
+    <button class="btn-danger">🗑️ Delete Feedback</button>
+  </form>
+</div>
+
+
+{# ==================== 32. ADMIN ACTIVITY ==================== #}
+{% elif request.endpoint == 'admin_activity' %}
+<div class="panel">
+  <div class="section-title">📊 Activity Log</div>
+  <div class="chip-row">
+    <a href="{{ url_for('admin_activity') }}" class="chip {% if not current_severity %}active{% endif %}">All ({{ severity_counts.all }})</a>
+    <a href="{{ url_for('admin_activity') }}?severity=info" class="chip {% if current_severity == 'info' %}active{% endif %}">ℹ️ Info</a>
+    <a href="{{ url_for('admin_activity') }}?severity=warning" class="chip {% if current_severity == 'warning' %}active{% endif %}">⚠️ Warning ({{ severity_counts.warning }})</a>
+    <a href="{{ url_for('admin_activity') }}?severity=critical" class="chip {% if current_severity == 'critical' %}active{% endif %}">🚨 Critical ({{ severity_counts.critical }})</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Time</th><th>Action</th><th>User</th><th>Detail</th><th>IP</th><th>Severity</th></tr></thead>
+      <tbody>
+        {% for log in logs %}
+          <tr>
+            <td>{{ log.created_at.strftime('%d %b, %H:%M') }}</td>
+            <td><b>{{ log.action }}</b></td>
+            <td>{{ log.user_id or '—' }}</td>
+            <td style="max-width:300px">{{ (log.detail or '')[:80] }}</td>
+            <td><code style="font-size:.7rem">{{ log.ip_address or '—' }}</code></td>
+            <td>
+              {% if log.severity == 'critical' %}<span style="color:var(--danger);font-weight:900">🚨 critical</span>
+              {% elif log.severity == 'warning' %}<span style="color:var(--warning);font-weight:800">⚠️ warning</span>
+              {% else %}ℹ️ info{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 33. ADMIN SETTINGS ==================== #}
+{% elif request.endpoint == 'admin_settings' %}
+<div class="panel" style="max-width:650px;margin:0 auto">
+  <div class="section-title">⚙️ Site Settings</div>
+  {% if current_user.role != 'president' %}
+    <div class="flash warning">ℹ️ Sirf President settings change kar sakte hain. View only mode.</div>
+  {% endif %}
+  <form method="post">
+    <div class="grid-form">
+      <div><label>Site Name</label><input type="text" name="site_name" value="{{ settings.get('site_name', COMPANY_NAME) }}"></div>
+      <div><label>Tagline</label><input type="text" name="site_tagline" value="{{ settings.get('site_tagline', 'PDF Notes Store') }}"></div>
+      <div><label>Support Email</label><input type="email" name="support_email" value="{{ settings.get('support_email', COMPANY_EMAIL) }}"></div>
+      <div><label>Support Mobile</label><input type="tel" name="support_mobile" value="{{ settings.get('support_mobile', COMPANY_PHONE) }}"></div>
+      <div><label>UPI ID</label><input type="text" name="upi_id" value="{{ settings.get('upi_id', '') }}"></div>
+      <div><label>Maintenance Mode</label>
+        <select name="maintenance_mode">
+          <option value="false" {% if settings.get('maintenance_mode') != 'true' %}selected{% endif %}>Off</option>
+          <option value="true" {% if settings.get('maintenance_mode') == 'true' %}selected{% endif %}>On</option>
+        </select>
+      </div>
+    </div>
+    {% if current_user.role == 'president' %}
+      <button type="submit" class="btn-primary">Save Settings</button>
+    {% endif %}
+  </form>
+</div>
+
+
+{# ==================== 34. CEO SIGNUP ==================== #}
+{% elif request.endpoint == 'ceo_signup' %}
+<div class="auth-wrap">
+  <div class="auth-card wide">
+    <h2>🏢 CEO Signup</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      CEO account banane ke liye President se CEO invite code lena zaroori hai.
+    </p>
+    <form method="post">
+      <label>Full Name</label>
+      <input type="text" name="full_name" required>
+      <label>Email</label>
+      <input type="email" name="email" required>
+      <label>Mobile</label>
+      <input type="tel" name="mobile" maxlength="10" required>
+      <label>CEO Invite Code</label>
+      <input type="text" name="invite_code" placeholder="OMNICART-XXXXXXXX"
+             pattern="OMNICART-[A-Z0-9]{8}" required
+             style="text-transform:uppercase;font-family:monospace">
+      <small class="hint">President se jo code mila hai wahi daalein.</small>
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="password" id="ceoPw" required
+               oninput="checkPwStrength('ceoPw','ceoStrength')">
+        <button type="button" class="pw-toggle" onclick="togglePw('ceoPw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="ceoStrength"></div>
+      <label>Confirm Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="confirm_password" id="ceoCpw" required
+               oninput="checkPwMatch('ceoPw','ceoCpw','ceoMatch')">
+        <button type="button" class="pw-toggle" onclick="togglePw('ceoCpw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="ceoMatch"></div>
+      <button type="submit" class="btn-primary">Create CEO Account</button>
+    </form>
+  </div>
+</div>
+    <a href="{{ url_for('user_home') }}" class="btn-cancel">← Cancel</a>
+
+
+{# ==================== 35. CEO LOGIN ==================== #}
+{% elif request.endpoint == 'ceo_login' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🏢 CEO Login</h2>
+    <form method="post">
+      <label>Mobile</label>
+      <input type="tel" name="mobile" maxlength="10" required>
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="password" id="ceoLgPw" required>
+        <button type="button" class="pw-toggle" onclick="togglePw('ceoLgPw', this)">👁️</button>
+      </div>
+      <button type="submit" class="btn-primary">Login</button>
+    </form>
+
+    <a href="{{ url_for('user_home') }}" class="btn-cancel">← Cancel</a>
+
+    <div class="auth-links" style="justify-content:center">
+      <a href="{{ url_for('staff_forgot_password') }}">🔑 Forgot Password?</a>
+    </div>
+
+    <div class="auth-links">
+      <a href="{{ url_for('ceo_signup') }}">Signup →</a>
+      <a href="{{ url_for('admin_login') }}">← Admin</a>
+    </div>
+  </div>
+</div>
+
+
+{# ==================== 36. CEO DASHBOARD ==================== #}
+{% elif request.endpoint == 'ceo_dashboard' %}
+<div class="panel">
+  <div class="section-title">🏢 CEO Dashboard</div>
+  <p class="muted">Welcome, {{ current_user.full_name }}</p>
+  <div class="stats-grid">
+    <div class="stat"><div class="num">{{ stats.total_users }}</div><div>Users</div></div>
+    <div class="stat"><div class="num">{{ stats.total_admins }}</div><div>Admins</div></div>
+    <div class="stat"><div class="num">{{ stats.total_pdfs }}</div><div>PDFs</div></div>
+    <div class="stat"><div class="num">{{ stats.total_purchases }}</div><div>Sales</div></div>
+    <div class="stat"><div class="num">₹{{ '%.0f'|format(stats.total_revenue) }}</div><div>Revenue</div></div>
+    <div class="stat"><div class="num">₹{{ '%.0f'|format(stats.today_revenue) }}</div><div>Today ₹</div></div>
+    {% if stats.pending_upi %}
+      <div class="stat alert"><div class="num">{{ stats.pending_upi }}</div><div>Pending UPI</div></div>
+    {% endif %}
+  </div>
+</div>
+
+{% if critical_logs %}
+<div class="panel">
+  <div class="section-title">🚨 Critical Activity (Last 10)</div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Time</th><th>Action</th><th>Detail</th></tr></thead>
+      <tbody>
+        {% for log in critical_logs %}
+          <tr>
+            <td>{{ log.created_at.strftime('%d %b, %H:%M') }}</td>
+            <td><b>{{ log.action }}</b></td>
+            <td>{{ (log.detail or '')[:80] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+
+{# ==================== 37. CEO ADMINS ==================== #}
+{% elif request.endpoint == 'ceo_admins' %}
+<div class="panel">
+  <div class="section-title">🛡️ Manage Admins</div>
+  <div class="quick-links" style="margin-bottom:1rem">
+    <a href="{{ url_for('ceo_admin_create') }}" class="btn-small">➕ Create Admin</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Email</th><th>Joined</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for a in admins %}
+          <tr>
+            <td>{{ a.id }}</td>
+            <td><b>{{ a.full_name }}</b></td>
+            <td>{{ a.mobile }}</td>
+            <td>{{ a.email }}</td>
+            <td>{{ a.created_at.strftime('%d %b %Y') if a.created_at else '—' }}</td>
+            <td>
+              <form method="post" action="{{ url_for('ceo_admin_promote', admin_id=a.id) }}" style="display:inline">
+                <button class="btn-small" style="font-size:.7rem">⬆️ Promote</button>
+              </form>
+              <form method="post" action="{{ url_for('ceo_admin_demote', admin_id=a.id) }}" style="display:inline"
+                    onsubmit="return confirm('Demote to user?')">
+                <button class="btn-secondary" style="font-size:.7rem;padding:.3rem .6rem">⬇️ Demote</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        {% if not admins %}
+          <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted)">No admins yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 38. CEO CREATE ADMIN ==================== #}
+{% elif request.endpoint == 'ceo_admin_create' %}
+<div class="panel" style="max-width:600px;margin:0 auto">
+  <div class="section-title">➕ Create Admin</div>
+  <form method="post">
+    <div class="grid-form">
+      <div><label>Full Name *</label><input type="text" name="full_name" required></div>
+      <div><label>Mobile *</label><input type="tel" name="mobile" maxlength="10" required></div>
+      <div class="full"><label>Email *</label><input type="email" name="email" required></div>
+      <div class="full">
+        <label>Password *</label>
+        <div class="pw-wrap">
+          <input type="password" name="password" id="newAdPw" required
+                 oninput="checkPwStrength('newAdPw','newAdStrength')">
+          <button type="button" class="pw-toggle" onclick="togglePw('newAdPw', this)">👁️</button>
+        </div>
+        <div class="pw-strength" id="newAdStrength"></div>
+      </div>
+      <div class="full">
+        <label>Confirm Password *</label>
+        <div class="pw-wrap">
+          <input type="password" name="confirm_password" id="newAdCpw" required
+                 oninput="checkPwMatch('newAdPw','newAdCpw','newAdMatch')">
+          <button type="button" class="pw-toggle" onclick="togglePw('newAdCpw', this)">👁️</button>
+        </div>
+        <div class="pw-strength" id="newAdMatch"></div>
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Create Admin</button>
+  </form>
+</div>
+
+
+{# ==================== 39. CEO ACTIVITY ==================== #}
+{% elif request.endpoint == 'ceo_activity' %}
+<div class="panel">
+  <div class="section-title">📊 Activity Log</div>
+  <div class="chip-row">
+    <a href="{{ url_for('ceo_activity') }}" class="chip {% if not current_severity %}active{% endif %}">All ({{ severity_counts.all }})</a>
+    <a href="{{ url_for('ceo_activity') }}?severity=warning" class="chip {% if current_severity == 'warning' %}active{% endif %}">⚠️ ({{ severity_counts.warning }})</a>
+    <a href="{{ url_for('ceo_activity') }}?severity=critical" class="chip {% if current_severity == 'critical' %}active{% endif %}">🚨 ({{ severity_counts.critical }})</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Time</th><th>Action</th><th>User</th><th>Detail</th><th>Severity</th></tr></thead>
+      <tbody>
+        {% for log in logs %}
+          <tr>
+            <td>{{ log.created_at.strftime('%d %b, %H:%M') }}</td>
+            <td><b>{{ log.action }}</b></td>
+            <td>{{ log.user_id or '—' }}</td>
+            <td>{{ (log.detail or '')[:80] }}</td>
+            <td>
+              {% if log.severity == 'critical' %}<span style="color:var(--danger)">🚨</span>
+              {% elif log.severity == 'warning' %}<span style="color:var(--warning)">⚠️</span>
+              {% else %}ℹ️{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 40. CEO LOCKDOWN ==================== #}
+{% elif request.endpoint == 'ceo_lockdown' %}
+<div class="panel" style="max-width:600px;margin:0 auto">
+  <div class="section-title">🔒 Emergency Lockdown</div>
+  {% if maintenance_mode %}
+    <div class="flash warning">🚨 Site abhi maintenance mode me hai.</div>
+    <form method="post">
+      <input type="hidden" name="action" value="disable">
+      <button class="btn-accept" style="width:100%;padding:1rem;font-size:1rem">
+        ✅ Disable Maintenance Mode
+      </button>
+    </form>
+  {% else %}
+    <p style="color:var(--text-2);font-size:.88rem;margin-bottom:1rem">
+      Maintenance mode enable karne se users site access nahi kar payenge.
+      Sirf staff (admin/ceo/president) access kar sakte hain.
+    </p>
+    <form method="post" onsubmit="return confirm('Enable maintenance mode?')">
+      <input type="hidden" name="action" value="enable">
+      <button class="btn-danger" style="width:100%;padding:1rem;font-size:1rem">
+        🔒 Enable Maintenance Mode
+      </button>
+    </form>
+  {% endif %}
+</div>
+
+
+{# ==================== 41. PRESIDENT LOGIN ==================== #}
+{% elif request.endpoint == 'president_login' %}
+<div class="auth-wrap">
+  <div class="auth-card" style="border-color:#f59e0b">
+    <h2 style="color:#b45309">👑 President Login</h2>
+    <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:1rem">
+      Master account — sirf authorized personnel ke liye.
+    </p>
+    <form method="post">
+      <label>Mobile Number</label>
+      <input type="tel" name="mobile" maxlength="10" required placeholder="10-digit mobile">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="password" id="presPw" required>
+        <button type="button" class="pw-toggle" onclick="togglePw('presPw', this)">👁️</button>
+      </div>
+      <button type="submit" class="btn-primary" style="background:linear-gradient(145deg,#f59e0b,#b45309)">
+        Login
+      </button>
+    </form>
+  </div>
+</div>
+
+
+{# ==================== 42. PRESIDENT CHANGE PASSWORD ==================== #}
+{% elif request.endpoint == 'president_change_password' %}
+<div class="auth-wrap">
+  <div class="auth-card" style="border-color:#f59e0b">
+    <h2 style="color:#b45309">🔑 Set President Password</h2>
+    {% if must_change %}
+      <div class="flash warning">
+        ⚠️ Pehli baar login — apna strong password set karein.
+      </div>
+    {% endif %}
+    <form method="post">
+      <label>Old / Temp Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="old_password" id="presOldPw" required>
+        <button type="button" class="pw-toggle" onclick="togglePw('presOldPw', this)">👁️</button>
+      </div>
+      <label>New Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="new_password" id="presNewPw" required
+               oninput="checkPwStrength('presNewPw','presStrength')">
+        <button type="button" class="pw-toggle" onclick="togglePw('presNewPw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="presStrength"></div>
+      <label>Confirm New Password</label>
+      <div class="pw-wrap">
+        <input type="password" name="confirm_password" id="presNewCpw" required
+               oninput="checkPwMatch('presNewPw','presNewCpw','presMatch')">
+        <button type="button" class="pw-toggle" onclick="togglePw('presNewCpw', this)">👁️</button>
+      </div>
+      <div class="pw-strength" id="presMatch"></div>
+      <button type="submit" class="btn-primary" style="background:linear-gradient(145deg,#f59e0b,#b45309)">
+        Save Password
+      </button>
+    </form>
+  </div>
+</div>
+
+
+{# ==================== 43. PRESIDENT DASHBOARD ==================== #}
+{% elif request.endpoint == 'president_dashboard' %}
+<div class="panel" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#f59e0b">
+  <div class="section-title" style="border-color:#f59e0b">👑 President Dashboard</div>
+  <p class="muted">Welcome, {{ current_user.full_name }}</p>
+  <div class="stats-grid">
+    <div class="stat"><div class="num">{{ stats.total_users }}</div><div>Users</div></div>
+    <div class="stat"><div class="num">{{ stats.total_admins }}</div><div>Admins</div></div>
+    <div class="stat"><div class="num">{{ stats.total_ceos }}</div><div>CEOs</div></div>
+    <div class="stat"><div class="num">{{ stats.total_pdfs }}</div><div>PDFs</div></div>
+    <div class="stat"><div class="num">{{ stats.total_purchases }}</div><div>Sales</div></div>
+    <div class="stat"><div class="num">₹{{ '%.0f'|format(stats.total_revenue) }}</div><div>Revenue</div></div>
+    <div class="stat"><div class="num">{{ stats.active_codes }}</div><div>Active Codes</div></div>
+    {% if stats.pending_upi %}
+      <div class="stat alert"><div class="num">{{ stats.pending_upi }}</div><div>Pending UPI</div></div>
+    {% endif %}
+  </div>
+  <div class="quick-links" style="margin-top:1rem">
+    <a href="{{ url_for('president_ceo_codes') }}" class="btn-small">🎫 CEO Codes</a>
+    <a href="{{ url_for('president_control') }}" class="btn-small">🎛️ Full Control</a>
+    <a href="{{ url_for('president_settings') }}" class="btn-secondary">⚙️ Settings</a>
+    <a href="{{ url_for('president_activity') }}" class="btn-secondary">📊 Activity</a>
+  </div>
+</div>
+
+
+{# ==================== 44. PRESIDENT CEO CODES ==================== #}
+{% elif request.endpoint == 'president_ceo_codes' %}
+<div class="panel" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#f59e0b">
+  <div class="section-title" style="border-color:#f59e0b">🎫 CEO Invite Codes</div>
+  <form method="post" action="{{ url_for('president_generate_ceo_code') }}"
+        style="display:flex;gap:.5rem;align-items:end;margin-bottom:1rem;flex-wrap:wrap">
+    <div>
+      <label style="font-weight:800;font-size:.8rem">Expiry (days)</label>
+      <input type="number" name="expiry_days" value="30" min="1" max="365"
+             style="padding:.5rem 1rem;border-radius:10px;border:2px solid var(--border);width:120px">
+    </div>
+    <button type="submit" class="btn-small">🎲 Generate New Code</button>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="section-title">✅ Active Codes ({{ active_codes|length }})</div>
+  {% if active_codes %}
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Code</th><th>Created</th><th>Expires</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for c in active_codes %}
+            <tr>
+              <td><code style="font-weight:800;color:var(--orange-2)">{{ c.code }}</code></td>
+              <td>{{ c.created_at.strftime('%d %b %Y') }}</td>
+              <td>{{ c.expires_at.strftime('%d %b %Y') if c.expires_at else 'Never' }}</td>
+              <td>
+                <form method="post" action="{{ url_for('president_revoke_ceo_code', code_id=c.id) }}"
+                      onsubmit="return confirm('Revoke this code?')">
+                  <button class="btn-danger small">Revoke</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">Koi active code nahi. Naya generate karein.</div>
+  {% endif %}
+</div>
+
+{% if used_codes %}
+<div class="panel">
+  <div class="section-title">📋 Recently Used Codes</div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Code</th><th>Used By</th><th>Used At</th></tr></thead>
+      <tbody>
+        {% for c in used_codes %}
+          <tr>
+            <td><code>{{ c.code }}</code></td>
+            <td>{{ c.used_by or '—' }}</td>
+            <td>{{ c.used_at.strftime('%d %b %Y, %H:%M') if c.used_at else '—' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+
+{# ==================== 45. PRESIDENT FULL CONTROL ==================== #}
+{% elif request.endpoint == 'president_control' %}
+<div class="panel" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#f59e0b">
+  <div class="section-title" style="border-color:#f59e0b">🎛️ Full Control Panel</div>
+  <p class="muted">Saare staff members (admin, ceo, president)</p>
+</div>
+
+<div class="panel">
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Mobile</th><th>Email</th><th>Role</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for u in staff %}
+          <tr>
+            <td>{{ u.id }}</td>
+            <td><b>{{ u.full_name }}</b></td>
+            <td>{{ u.mobile }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+              {% if u.role == 'president' %}👑 President
+              {% elif u.role == 'ceo' %}🏢 CEO
+              {% elif u.role == 'admin' %}🛡️ Admin
+              {% endif %}
+            </td>
+            <td>
+              {% if u.role != 'president' and u.id != current_user.id %}
+                <form method="post" action="{{ url_for('president_force_role', user_id=u.id) }}"
+                      style="display:inline">
+                  <select name="new_role" style="padding:.3rem;border-radius:6px;font-size:.72rem">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                    <option value="ceo">CEO</option>
+                  </select>
+                  <button class="btn-small" style="font-size:.7rem">Change</button>
+                </form>
+                <form method="post" action="{{ url_for('president_force_delete', user_id=u.id) }}"
+                      style="display:inline" onsubmit="return confirm('Delete permanently?')">
+                  <button class="btn-danger small">Delete</button>
+                </form>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 46. PRESIDENT SETTINGS ==================== #}
+{% elif request.endpoint == 'president_settings' %}
+<div class="panel" style="max-width:650px;margin:0 auto;background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#f59e0b">
+  <div class="section-title" style="border-color:#f59e0b">⚙️ Site Settings (President Only)</div>
+  <form method="post">
+    <div class="grid-form">
+      <div><label>Site Name</label><input type="text" name="site_name" value="{{ settings.get('site_name', COMPANY_NAME) }}"></div>
+      <div><label>Tagline</label><input type="text" name="site_tagline" value="{{ settings.get('site_tagline', 'PDF Notes Store') }}"></div>
+      <div><label>Support Email</label><input type="email" name="support_email" value="{{ settings.get('support_email', COMPANY_EMAIL) }}"></div>
+      <div><label>Support Mobile</label><input type="tel" name="support_mobile" value="{{ settings.get('support_mobile', COMPANY_PHONE) }}"></div>
+      <div><label>UPI ID</label><input type="text" name="upi_id" value="{{ settings.get('upi_id', '') }}"></div>
+      <div><label>Razorpay Enabled</label>
+        <select name="razorpay_enabled">
+          <option value="true" {% if settings.get('razorpay_enabled') != 'false' %}selected{% endif %}>Yes</option>
+          <option value="false" {% if settings.get('razorpay_enabled') == 'false' %}selected{% endif %}>No</option>
+        </select>
+      </div>
+      <div><label>Maintenance Mode</label>
+        <select name="maintenance_mode">
+          <option value="false" {% if settings.get('maintenance_mode') != 'true' %}selected{% endif %}>Off</option>
+          <option value="true" {% if settings.get('maintenance_mode') == 'true' %}selected{% endif %}>On</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn-primary" style="background:linear-gradient(145deg,#f59e0b,#b45309)">
+      Save Settings
+    </button>
+  </form>
+</div>
+
+
+{# ==================== 47. PRESIDENT ACTIVITY ==================== #}
+{% elif request.endpoint == 'president_activity' %}
+<div class="panel">
+  <div class="section-title">📊 Activity Log (Full)</div>
+  <div class="chip-row">
+    <a href="{{ url_for('president_activity') }}" class="chip {% if not current_severity %}active{% endif %}">All ({{ severity_counts.all }})</a>
+    <a href="{{ url_for('president_activity') }}?severity=info" class="chip {% if current_severity == 'info' %}active{% endif %}">ℹ️ ({{ severity_counts.info }})</a>
+    <a href="{{ url_for('president_activity') }}?severity=warning" class="chip {% if current_severity == 'warning' %}active{% endif %}">⚠️ ({{ severity_counts.warning }})</a>
+    <a href="{{ url_for('president_activity') }}?severity=critical" class="chip {% if current_severity == 'critical' %}active{% endif %}">🚨 ({{ severity_counts.critical }})</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Time</th><th>Action</th><th>User</th><th>Detail</th><th>IP</th><th>Sev</th></tr></thead>
+      <tbody>
+        {% for log in logs %}
+          <tr>
+            <td>{{ log.created_at.strftime('%d %b, %H:%M') }}</td>
+            <td><b>{{ log.action }}</b></td>
+            <td>{{ log.user_id or '—' }}</td>
+            <td>{{ (log.detail or '')[:60] }}</td>
+            <td><code style="font-size:.65rem">{{ log.ip_address or '—' }}</code></td>
+            <td>
+              {% if log.severity == 'critical' %}🚨
+              {% elif log.severity == 'warning' %}⚠️
+              {% else %}ℹ️{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+{# ==================== 48. MAINTENANCE ==================== #}
+{% elif request.endpoint == 'maintenance' or request.endpoint is none and request.path == '/maintenance' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🔧 Maintenance Mode</h2>
+    <p class="muted" style="text-align:center;margin:1rem 0">
+      Site abhi maintenance me hai. Thodi der baad try karein.
+    </p>
+    <p style="text-align:center;font-size:.82rem">
+      Contact: <b>{{ COMPANY_EMAIL }}</b> | <b>{{ COMPANY_PHONE }}</b>
+    </p>
+  </div>
+</div>
+
+
+{# ==================== 49. ERROR 403 ==================== #}
+{% elif request.endpoint == 'err_403' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🚫 403 — Access Denied</h2>
+    <p class="muted" style="text-align:center;margin:1rem 0">
+      Aap is page ko access nahi kar sakte.
+    </p>
+    <a href="{{ url_for('user_home') }}" class="btn-primary" style="display:block;text-align:center;text-decoration:none">
+      ← Go Home
+    </a>
+  </div>
+</div>
+
+
+{# ==================== 50. ERROR 404 ==================== #}
+{% elif request.endpoint == 'err_404' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🔍 404 — Not Found</h2>
+    <p class="muted" style="text-align:center;margin:1rem 0">
+      Yeh page exist nahi karta.
+    </p>
+    <a href="{{ url_for('user_home') }}" class="btn-primary" style="display:block;text-align:center;text-decoration:none">
+      ← Go Home
+    </a>
+  </div>
+</div>
+
+
+{# ==================== 51. ERROR 500 ==================== #}
+{% elif request.endpoint == 'err_500' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>💥 500 — Server Error</h2>
+    <p class="muted" style="text-align:center;margin:1rem 0">
+      Kuch galat ho gaya. Hum jald fix karenge.
+    </p>
+    <a href="{{ url_for('user_home') }}" class="btn-primary" style="display:block;text-align:center;text-decoration:none">
+      ← Go Home
+    </a>
+  </div>
+</div>
+
+
+{# ==================== 52. FALLBACK — PAGE NOT MAPPED ==================== #}
+{% else %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>⚠️ Page Loaded</h2>
+    <p class="muted" style="text-align:center;margin:1rem 0">
+      Endpoint: <code>{{ request.endpoint }}</code>
+    </p>
+    <p class="muted" style="text-align:center;font-size:.82rem">
+      Yeh page abhi frontend me nahi bana. Python route kaam kar raha hai.
+    </p>
+    <a href="{{ url_for('user_home') }}" class="btn-primary" style="display:block;text-align:center;text-decoration:none">
+      ← Go Home
+    </a>
+  </div>
+</div>
+{% endif %}
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <p>© {{ current_year }} {{ COMPANY_NAME }} — <strong>All Rights Reserved</strong></p>
+  <p>PDF Notes Store for Class 4–12, SSC, Assam Police, UPSC, APSC & Banking</p>
+  <p>Copyright Reserved to <strong>{{ COMPANY_LEGAL }}</strong></p>
+</footer>
+
+<!-- ==================== GLOBAL PAYMENT MODAL ==================== -->
+<div class="modal-backdrop" id="paymentModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>💳 Complete Payment</h3>
+      <button class="modal-close" onclick="closePaymentModal()">×</button>
+    </div>
+    <div id="paymentBody">
+      <div style="text-align:center;padding:1.5rem;color:var(--muted)">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RAZORPAY SDK ==================== -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- ==================== GLOBAL JS ==================== -->
+<script>
+/* ============================================================
+   OmniCart — Global JavaScript
+   ============================================================ */
+   /* ============================================================
+   TRANSLATION SYSTEM — 6 Languages
+   ============================================================ */
+const TRANSLATIONS = {
+  en: {
+    'nav.home':'Home','nav.search':'Search','nav.my_space':'My Space',
+    'nav.my_account':'My Account','nav.my_purchases':'My Purchases',
+    'nav.pending_orders':'Pending Orders','nav.settings':'Settings',
+    'nav.sections':'Sections','nav.info':'Info','nav.about':'About Us',
+    'nav.contact':'Contact Us','nav.feedback':'Feedback','nav.terms':'Terms & Conditions',
+    'nav.login':'Login','nav.signup':'Sign Up','nav.logout':'Logout',
+    'nav.company_access':'For Company Access','nav.my_pdfs':'My PDFs',
+    'home.hero_title':"India's Complete PDF Notes Store",
+    'home.hero_sub':'Class 4–12, SSC, Assam Police, UPSC, APSC, Banking — free preview, full PDF after purchase.',
+    'home.featured':'Featured PDFs','home.browse':'Browse by Section',
+    'settings.title':'Settings','settings.appearance':'Appearance',
+    'settings.appearance_sub':'Theme turant badal jayegi — save ki zarurat nahi.',
+    'settings.light':'Light','settings.dark':'Dark',
+    'settings.language':'Language',
+    'settings.language_sub':'Slider se language chuniye — poori website turant badal jayegi.',
+    'settings.scroll_hint':'Scroll to choose',
+    'settings.privacy':'Privacy',
+    'settings.privacy_sub':'Privacy level aur notifications — save karke lagu honge.',
+    'settings.privacy_level':'Privacy Level','settings.normal':'Normal',
+    'settings.high':'High','settings.maximum':'Maximum',
+    'settings.notifications':'Email notifications enable karein',
+    'settings.save_privacy':'Save Privacy Settings','settings.saved':'Saved',
+    'common.view':'View','common.free':'Free','common.pages':'pages'
+  },
+  hi: {
+    'nav.home':'होम','nav.search':'खोजें','nav.my_space':'मेरा स्पेस',
+    'nav.my_account':'मेरा खाता','nav.my_purchases':'मेरी खरीदारी',
+    'nav.pending_orders':'लंबित ऑर्डर','nav.settings':'सेटिंग्स',
+    'nav.sections':'सेक्शन्स','nav.info':'जानकारी','nav.about':'हमारे बारे में',
+    'nav.contact':'संपर्क करें','nav.feedback':'प्रतिक्रिया','nav.terms':'नियम और शर्तें',
+    'nav.login':'लॉगिन','nav.signup':'साइन अप','nav.logout':'लॉग आउट',
+    'nav.company_access':'कंपनी एक्सेस','nav.my_pdfs':'मेरी PDF',
+    'home.hero_title':'भारत का सम्पूर्ण PDF नोट्स स्टोर',
+    'home.hero_sub':'कक्षा 4–12, SSC, असम पुलिस, UPSC, APSC, बैंकिंग — मुफ़्त प्रीव्यू, खरीद के बाद पूरी PDF।',
+    'home.featured':'फीचर्ड PDF','home.browse':'सेक्शन से ब्राउज़ करें',
+    'settings.title':'सेटिंग्स','settings.appearance':'रूप',
+    'settings.appearance_sub':'थीम तुरंत बदल जाएगी — सेव करने की ज़रूरत नहीं।',
+    'settings.light':'लाइट','settings.dark':'डार्क',
+    'settings.language':'भाषा',
+    'settings.language_sub':'स्लाइडर से भाषा चुनें — पूरी वेबसाइट तुरंत बदल जाएगी।',
+    'settings.scroll_hint':'चुनने के लिए स्क्रॉल करें',
+    'settings.privacy':'गोपनीयता',
+    'settings.privacy_sub':'प्राइवेसी लेवल और नोटिफिकेशन — सेव करने पर लागू होंगे।',
+    'settings.privacy_level':'गोपनीयता स्तर','settings.normal':'सामान्य',
+    'settings.high':'उच्च','settings.maximum':'अधिकतम',
+    'settings.notifications':'ईमेल नोटिफिकेशन सक्षम करें',
+    'settings.save_privacy':'गोपनीयता सेटिंग्स सहेजें','settings.saved':'सहेजा गया',
+    'common.view':'देखें','common.free':'मुफ़्त','common.pages':'पृष्ठ'
+  },
+  as: {
+    'nav.home':'ঘৰ','nav.search':'সন্ধান','nav.my_space':'মোৰ স্থান',
+    'nav.my_account':'মোৰ একাউণ্ট','nav.my_purchases':'মোৰ ক্ৰয়',
+    'nav.pending_orders':'বাকী অৰ্ডাৰ','nav.settings':'ছেটিংছ',
+    'nav.sections':'বিভাগসমূহ','nav.info':'তথ্য','nav.about':'আমাৰ বিষয়ে',
+    'nav.contact':'যোগাযোগ','nav.feedback':'প্ৰতিক্ৰিয়া','nav.terms':'নিয়ম আৰু চৰ্ত',
+    'nav.login':'লগইন','nav.signup':'চাইন আপ','nav.logout':'লগআউট',
+    'nav.company_access':'কোম্পানী প্ৰৱেশ','nav.my_pdfs':'মোৰ PDF',
+    'home.hero_title':'ভাৰতৰ সম্পূৰ্ণ PDF নোটছ ষ্ট’ৰ',
+    'home.hero_sub':'শ্ৰেণী 4–12, SSC, অসম আৰক্ষী, UPSC, APSC, বেংকিং — বিনামূলীয়া পূৰ্বদৰ্শন, ক্ৰয়ৰ পিছত সম্পূৰ্ণ PDF।',
+    'home.featured':'ফিচাৰ্ড PDF','home.browse':'বিভাগ অনুসৰি ব্ৰাউজ কৰক',
+    'settings.title':'ছেটিংছ','settings.appearance':'ৰূপ',
+    'settings.appearance_sub':'থীম তৎক্ষণাত সলনি হ’ব — সংৰক্ষণৰ প্ৰয়োজন নাই।',
+    'settings.light':'লাইট','settings.dark':'ডাৰ্ক',
+    'settings.language':'ভাষা',
+    'settings.language_sub':'স্লাইডাৰৰ পৰা ভাষা বাছনি কৰক — সম্পূৰ্ণ ৱেবছাইট তৎক্ষণাত সলনি হ’ব।',
+    'settings.scroll_hint':'বাছনি কৰিবলৈ স্ক্ৰ’ল কৰক',
+    'settings.privacy':'গোপনীয়তা',
+    'settings.privacy_sub':'গোপনীয়তা স্তৰ আৰু জাননী — সংৰক্ষণ কৰিলে প্ৰযোজ্য হ’ব।',
+    'settings.privacy_level':'গোপনীয়তা স্তৰ','settings.normal':'সাধাৰণ',
+    'settings.high':'উচ্চ','settings.maximum':'সৰ্বাধিক',
+    'settings.notifications':'ইমেইল জাননী সক্ৰিয় কৰক',
+    'settings.save_privacy':'গোপনীয়তা সংৰক্ষণ কৰক','settings.saved':'সংৰক্ষিত',
+    'common.view':'চাওক','common.free':'বিনামূলীয়া','common.pages':'পৃষ্ঠা'
+  },
+  te: {
+    'nav.home':'హోమ్','nav.search':'వెతకండి','nav.my_space':'నా స్థలం',
+    'nav.my_account':'నా ఖాతా','nav.my_purchases':'నా కొనుగోళ్లు',
+    'nav.pending_orders':'పెండింగ్ ఆర్డర్లు','nav.settings':'సెట్టింగ్‌లు',
+    'nav.sections':'విభాగాలు','nav.info':'సమాచారం','nav.about':'మా గురించి',
+    'nav.contact':'సంప్రదించండి','nav.feedback':'అభిప్రాయం','nav.terms':'నిబంధనలు',
+    'nav.login':'లాగిన్','nav.signup':'సైన్ అప్','nav.logout':'లాగౌట్',
+    'nav.company_access':'కంపెనీ యాక్సెస్','nav.my_pdfs':'నా PDFలు',
+    'home.hero_title':'భారతదేశ పూర్తి PDF నోట్స్ స్టోర్',
+    'home.hero_sub':'తరగతి 4–12, SSC, అస్సాం పోలీస్, UPSC, APSC, బ్యాంకింగ్ — ఉచిత ప్రివ్యూ, కొనుగోలు తర్వాత పూర్తి PDF.',
+    'home.featured':'ఫీచర్డ్ PDFలు','home.browse':'విభాగం వారీగా బ్రౌజ్ చేయండి',
+    'settings.title':'సెట్టింగ్‌లు','settings.appearance':'రూపం',
+    'settings.appearance_sub':'థీమ్ వెంటనే మారుతుంది — సేవ్ అవసరం లేదు.',
+    'settings.light':'లైట్','settings.dark':'డార్క్',
+    'settings.language':'భాష',
+    'settings.language_sub':'స్లైడర్ నుండి భాష ఎంచుకోండి — మొత్తం వెబ్‌సైట్ వెంటనే మారుతుంది.',
+    'settings.scroll_hint':'ఎంచుకోడానికి స్క్రోల్ చేయండి',
+    'settings.privacy':'గోప్యత',
+    'settings.privacy_sub':'గోప్యత స్థాయి మరియు నోటిఫికేషన్‌లు — సేవ్ చేసిన తర్వాత వర్తిస్తాయి.',
+    'settings.privacy_level':'గోప్యత స్థాయి','settings.normal':'సాధారణం',
+    'settings.high':'అధికం','settings.maximum':'గరిష్ఠం',
+    'settings.notifications':'ఇమెయిల్ నోటిఫికేషన్‌లను ప్రారంభించండి',
+    'settings.save_privacy':'గోప్యత సెట్టింగ్‌లను సేవ్ చేయండి','settings.saved':'సేవ్ అయింది',
+    'common.view':'చూడండి','common.free':'ఉచితం','common.pages':'పేజీలు'
+  },
+  pa: {
+    'nav.home':'ਘਰ','nav.search':'ਖੋਜ','nav.my_space':'ਮੇਰੀ ਜਗ੍ਹਾ',
+    'nav.my_account':'ਮੇਰਾ ਖਾਤਾ','nav.my_purchases':'ਮੇਰੀ ਖਰੀਦ',
+    'nav.pending_orders':'ਪੈਂਡਿੰਗ ਆਰਡਰ','nav.settings':'ਸੈਟਿੰਗਾਂ',
+    'nav.sections':'ਸੈਕਸ਼ਨ','nav.info':'ਜਾਣਕਾਰੀ','nav.about':'ਸਾਡੇ ਬਾਰੇ',
+    'nav.contact':'ਸੰਪਰਕ ਕਰੋ','nav.feedback':'ਫੀਡਬੈਕ','nav.terms':'ਨਿਯਮ ਅਤੇ ਸ਼ਰਤਾਂ',
+    'nav.login':'ਲੌਗਇਨ','nav.signup':'ਸਾਈਨ ਅੱਪ','nav.logout':'ਲੌਗਆਉਟ',
+    'nav.company_access':'ਕੰਪਨੀ ਐਕਸੈਸ','nav.my_pdfs':'ਮੇਰੀ PDF',
+    'home.hero_title':'ਭਾਰਤ ਦਾ ਸੰਪੂਰਨ PDF ਨੋਟਸ ਸਟੋਰ',
+    'home.hero_sub':'ਕਲਾਸ 4–12, SSC, ਅਸਾਮ ਪੁਲਿਸ, UPSC, APSC, ਬੈਂਕਿੰਗ — ਮੁਫ਼ਤ ਪ੍ਰੀਵਿਊ, ਖਰੀਦ ਤੋਂ ਬਾਅਦ ਪੂਰੀ PDF।',
+    'home.featured':'ਫੀਚਰਡ PDF','home.browse':'ਸੈਕਸ਼ਨ ਅਨੁਸਾਰ ਬ੍ਰਾਊਜ਼ ਕਰੋ',
+    'settings.title':'ਸੈਟਿੰਗਾਂ','settings.appearance':'ਦਿੱਖ',
+    'settings.appearance_sub':'ਥੀਮ ਤੁਰੰਤ ਬਦਲ ਜਾਵੇਗੀ — ਸੇਵ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ।',
+    'settings.light':'ਲਾਈਟ','settings.dark':'ਡਾਰਕ',
+    'settings.language':'ਭਾਸ਼ਾ',
+    'settings.language_sub':'ਸਲਾਈਡਰ ਤੋਂ ਭਾਸ਼ਾ ਚੁਣੋ — ਪੂਰੀ ਵੈੱਬਸਾਈਟ ਤੁਰੰਤ ਬਦਲ ਜਾਵੇਗੀ।',
+    'settings.scroll_hint':'ਚੁਣਨ ਲਈ ਸਕ੍ਰੋਲ ਕਰੋ',
+    'settings.privacy':'ਗੋਪਨੀਯਤਾ',
+    'settings.privacy_sub':'ਗੋਪਨੀਯਤਾ ਪੱਧਰ ਅਤੇ ਨੋਟੀਫਿਕੇਸ਼ਨ — ਸੇਵ ਕਰਨ ਤੇ ਲਾਗੂ ਹੋਣਗੇ।',
+    'settings.privacy_level':'ਗੋਪਨੀਯਤਾ ਪੱਧਰ','settings.normal':'ਸਧਾਰਨ',
+    'settings.high':'ਉੱਚ','settings.maximum':'ਵੱਧ ਤੋਂ ਵੱਧ',
+    'settings.notifications':'ਈਮੇਲ ਨੋਟੀਫਿਕੇਸ਼ਨ ਚਾਲੂ ਕਰੋ',
+    'settings.save_privacy':'ਗੋਪਨੀਯਤਾ ਸੈਟਿੰਗਾਂ ਸੇਵ ਕਰੋ','settings.saved':'ਸੇਵ ਹੋ ਗਿਆ',
+    'common.view':'ਵੇਖੋ','common.free':'ਮੁਫ਼ਤ','common.pages':'ਸਫ਼ੇ'
+  },
+  or: {
+    'nav.home':'ଘର','nav.search':'ଖୋଜ','nav.my_space':'ମୋ ସ୍ଥାନ',
+    'nav.my_account':'ମୋ ଖାତା','nav.my_purchases':'ମୋ କ୍ରୟ',
+    'nav.pending_orders':'ପେଣ୍ଡିଂ ଅର୍ଡର','nav.settings':'ସେଟିଂସ',
+    'nav.sections':'ବିଭାଗ','nav.info':'ସୂଚନା','nav.about':'ଆମ ବିଷୟରେ',
+    'nav.contact':'ଯୋଗାଯୋଗ','nav.feedback':'ମତାମତ','nav.terms':'ନିୟମ ଏବଂ ସର୍ତ୍ତାବଳୀ',
+    'nav.login':'ଲଗଇନ','nav.signup':'ସାଇନ ଅପ','nav.logout':'ଲଗଆଉଟ',
+    'nav.company_access':'କମ୍ପାନୀ ପ୍ରବେଶ','nav.my_pdfs':'ମୋ PDF',
+    'home.hero_title':'ଭାରତର ସମ୍ପୂର୍ଣ୍ଣ PDF ନୋଟ୍ସ ଷ୍ଟୋର',
+    'home.hero_sub':'ଶ୍ରେଣୀ 4–12, SSC, ଆସାମ ପୋଲିସ, UPSC, APSC, ବ୍ୟାଙ୍କିଂ — ମାଗଣା ପୂର୍ବାବଲୋକନ, କ୍ରୟ ପରେ ସମ୍ପୂର୍ଣ୍ଣ PDF।',
+    'home.featured':'ଫିଚର୍ଡ PDF','home.browse':'ବିଭାଗ ଅନୁଯାୟୀ ବ୍ରାଉଜ କରନ୍ତୁ',
+    'settings.title':'ସେଟିଂସ','settings.appearance':'ରୂପ',
+    'settings.appearance_sub':'ଥିମ ତୁରନ୍ତ ବଦଳିଯିବ — ସେଭ ଆବଶ୍ୟକ ନାହିଁ।',
+    'settings.light':'ଲାଇଟ','settings.dark':'ଡାର୍କ',
+    'settings.language':'ଭାଷା',
+    'settings.language_sub':'ସ୍ଲାଇଡରରୁ ଭାଷା ବାଛନ୍ତୁ — ସମ୍ପୂର୍ଣ୍ଣ ୱେବସାଇଟ ତୁରନ୍ତ ବଦଳିଯିବ।',
+    'settings.scroll_hint':'ବାଛିବା ପାଇଁ ସ୍କ୍ରୋଲ କରନ୍ତୁ',
+    'settings.privacy':'ଗୋପନୀୟତା',
+    'settings.privacy_sub':'ଗୋପନୀୟତା ସ୍ତର ଏବଂ ବିଜ୍ଞପ୍ତି — ସେଭ କଲେ ଲାଗୁ ହେବ।',
+    'settings.privacy_level':'ଗୋପନୀୟତା ସ୍ତର','settings.normal':'ସାଧାରଣ',
+    'settings.high':'ଉଚ୍ଚ','settings.maximum':'ସର୍ବାଧିକ',
+    'settings.notifications':'ଇମେଲ ବିଜ୍ଞପ୍ତି ସକ୍ରିୟ କରନ୍ତୁ',
+    'settings.save_privacy':'ଗୋପନୀୟତା ସେଟିଂସ ସେଭ କରନ୍ତୁ','settings.saved':'ସେଭ ହେଲା',
+    'common.view':'ଦେଖନ୍ତୁ','common.free':'ମାଗଣା','common.pages':'ପୃଷ୍ଠା'
+  }
+};
+
+function applyTranslations(lang){
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    const key = el.getAttribute('data-i18n');
+    const val = dict[key] || TRANSLATIONS.en[key];
+    if(val) el.textContent = val;
+  });
+  // placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    const key = el.getAttribute('data-i18n-ph');
+    const val = dict[key] || TRANSLATIONS.en[key];
+    if(val) el.setAttribute('placeholder', val);
+  });
+}
+
+/* ---------- SETTINGS: AUTO-SAVE THEME ---------- */
+function initSettingsAutoSave(){
+  // THEME
+  const themePicker = document.getElementById('themePicker');
+  if(themePicker){
+    themePicker.querySelectorAll('.theme-opt').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const theme = btn.dataset.theme;
+        // Instant apply
+        document.documentElement.setAttribute('data-theme', theme);
+        // Update active class
+        themePicker.querySelectorAll('.theme-opt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Show save note
+        const note = document.getElementById('themeSavedNote');
+        if(note){ note.classList.add('show'); setTimeout(()=>note.classList.remove('show'), 1800); }
+        // Save to DB
+        try{
+          await fetch('/api/settings/theme', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({theme: theme})
+          });
+        }catch(e){ console.error('Theme save failed', e); }
+      });
+    });
+  }
+
+  // LANGUAGE
+  const langSlider = document.getElementById('langSlider');
+  if(langSlider){
+    langSlider.querySelectorAll('.lang-chip').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const lang = btn.dataset.lang;
+        // Instant apply
+        applyTranslations(lang);
+        // Update active
+        langSlider.querySelectorAll('.lang-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Show save note
+        const note = document.getElementById('langSavedNote');
+        if(note){ note.classList.add('show'); setTimeout(()=>note.classList.remove('show'), 1800); }
+        // Save to DB
+        try{
+          await fetch('/api/settings/language', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({language: lang})
+          });
+        }catch(e){ console.error('Lang save failed', e); }
+      });
+    });
+  }
+}
+
+/* ---------- SIDEBAR ---------- */
+function toggleSidebar(){
+  const s = document.getElementById('sidebar');
+  const b = document.getElementById('sidebarBackdrop');
+  const m = document.getElementById('menuBtn');
+  if(s) s.classList.toggle('open');
+  if(b) b.classList.toggle('active');
+  if(m) m.classList.toggle('active');
+}
+function closeSidebar(){
+  const s = document.getElementById('sidebar');
+  const b = document.getElementById('sidebarBackdrop');
+  const m = document.getElementById('menuBtn');
+  if(s) s.classList.remove('open');
+  if(b) b.classList.remove('active');
+  if(m) m.classList.remove('active');
+}
+
+/* ---------- PASSWORD SHOW/HIDE ---------- */
+function togglePw(id, btn){
+  const inp = document.getElementById(id);
+  if(!inp) return;
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    if(btn) btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    if(btn) btn.textContent = '👁️';
+  }
+}
+
+/* ---------- PASSWORD STRENGTH ---------- */
+function checkPwStrength(inputId, msgId){
+  const inp = document.getElementById(inputId);
+  const msg = document.getElementById(msgId);
+  if(!inp || !msg) return;
+  const v = inp.value;
+  if(!v){ msg.textContent = ''; return; }
+  const errs = [];
+  if(v.length < 8) errs.push('8+ chars');
+  if(!/[A-Z]/.test(v)) errs.push('1 Capital');
+  if(!/[a-z]/.test(v)) errs.push('1 small');
+  if(!/[0-9]/.test(v)) errs.push('1 number');
+  if(!/[@$!%*?&#^()_\-+=]/.test(v)) errs.push('1 special');
+  if(errs.length === 0){
+    msg.textContent = '✅ Strong password';
+    msg.style.color = '#059669';
+  } else {
+    msg.textContent = '⚠️ Missing: ' + errs.join(', ');
+    msg.style.color = '#ea580c';
+  }
+}
+
+/* ---------- PASSWORD MATCH ---------- */
+function checkPwMatch(pwId, cpwId, msgId){
+  const pw = document.getElementById(pwId);
+  const cpw = document.getElementById(cpwId);
+  const msg = document.getElementById(msgId);
+  if(!pw || !cpw || !msg) return;
+  if(!cpw.value){ msg.textContent = ''; return; }
+  if(pw.value !== cpw.value){
+    msg.textContent = '❌ Passwords match nahi kar rahe';
+    msg.style.color = '#dc2626';
+  } else if(cpw.value.length >= 8){
+    msg.textContent = '✅ Passwords match';
+    msg.style.color = '#059669';
+  }
+}
+
+/* ---------- COPY TO CLIPBOARD ---------- */
+function copyText(text, label){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✅ ' + (label || 'Copied') + ': ' + text);
+    }).catch(() => {
+      alert((label || 'Value') + ': ' + text);
+    });
+  } else {
+    alert((label || 'Value') + ': ' + text);
+  }
+}
+
+/* ---------- PAYMENT MODAL ---------- */
+function openModal(id){
+  const m = document.getElementById(id);
+  if(m) m.classList.add('active');
+}
+function closeModal(id){
+  const m = document.getElementById(id);
+  if(m) m.classList.remove('active');
+}
+function closePaymentModal(){
+  const m = document.getElementById('paymentModal');
+  if(m) m.classList.remove('active');
+}
+
+/* ---------- PAYMENT TABS ---------- */
+function switchPayTab(tab){
+  document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pay-pane').forEach(p => p.classList.remove('active'));
+  const t = document.querySelector('.pay-tab[data-tab="' + tab + '"]');
+  const p = document.getElementById('pane-' + tab);
+  if(t) t.classList.add('active');
+  if(p) p.classList.add('active');
+}
+
+/* ---------- UNLOCK PDF (from lock overlay) ---------- */
+function unlockPdf(pdfId){
+  window.location.href = '/payment/checkout/' + pdfId;
+}
+
+/* ---------- ESC KEY ---------- */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    closeSidebar();
+    closePaymentModal();
+  }
+});
+
+/* ---------- CLICK OUTSIDE MODAL ---------- */
+document.addEventListener('click', function(e){
+  const pm = document.getElementById('paymentModal');
+  if(pm && e.target === pm) closePaymentModal();
+});
+
+/* ============================================================
+   RAZORPAY PAYMENT
+   ============================================================ */
+async function payWithRazorpay(pdfId){
+  const btn = event && event.target ? event.target : null;
+  const orig = btn ? btn.innerHTML : '';
+  if(btn){
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Please wait…';
+  }
+
+  try{
+    const res = await fetch('/payment/create-order/' + pdfId, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const data = await res.json();
+
+    if(!res.ok || data.error){
+      alert('❌ ' + (data.error || 'Payment initialization failed'));
+      if(btn){ btn.disabled = false; btn.innerHTML = orig; }
+      return;
+    }
+
+    const rzp = new Razorpay({
+      key: data.key_id,
+      amount: data.amount,
+      currency: data.currency,
+      name: data.name,
+      description: data.description,
+      order_id: data.order_id,
+      prefill: data.prefill,
+      theme: { color: '#f97316' },
+      handler: async function(resp){
+        try{
+          const v = await fetch('/payment/verify', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(resp)
+          });
+          const vd = await v.json();
+          if(vd.status === 'ok'){
+            alert('✅ Payment successful!');
+            window.location.href = vd.redirect;
+          } else {
+            alert('❌ Payment verification failed');
+            if(btn){ btn.disabled = false; btn.innerHTML = orig; }
+          }
+        } catch(err){
+          alert('❌ Verification error: ' + err.message);
+          if(btn){ btn.disabled = false; btn.innerHTML = orig; }
+        }
+      },
+      modal: {
+        ondismiss: function(){
+          if(btn){ btn.disabled = false; btn.innerHTML = orig; }
+        }
+      }
+    });
+    rzp.open();
+
+  } catch(e){
+    alert('❌ Error: ' + e.message);
+    if(btn){ btn.disabled = false; btn.innerHTML = orig; }
+  }
+}
+
+/* ============================================================
+   UPI DEEP LINK (PhonePe / Paytm / GPay)
+   ============================================================ */
+function openUpiApp(app){
+  const data = window.__pendingPayment;
+  if(!data){
+    alert('❌ Payment info missing. Page reload karein.');
+    return;
+  }
+
+  const amt = data.amount;
+  const note = encodeURIComponent((data.title || '').slice(0, 40));
+  const upiId = data.upi_id;
+  const payee = encodeURIComponent(data.payee || 'OmniCart');
+
+  const base = 'pa=' + upiId +
+               '&pn=' + payee +
+               '&am=' + amt +
+               '&cu=INR' +
+               '&tn=' + note;
+
+  let url = '';
+  if(app === 'phonepe'){
+    url = 'phonepe://pay?' + base;
+  } else if(app === 'paytm'){
+    url = 'paytmmp://pay?' + base;
+  } else if(app === 'gpay'){
+    url = 'tez://upi/pay?' + base;
+  } else {
+    url = 'upi://pay?' + base;
+  }
+
+  // Try to open the UPI app
+  window.location.href = url;
+
+  // Fallback alert after 1.5s
+  setTimeout(function(){
+    alert('Agar app nahi khula:\n\n' +
+          '1. "Other UPI" tab me QR scan karein\n' +
+          '2. Ya manually UPI ID par bhejein: ' + upiId + '\n\n' +
+          'Payment ke baad "I have paid" button par click karein.');
+  }, 1500);
+}
+
+/* ============================================================
+   UPI MANUAL CLAIM ("I have paid")
+   ============================================================ */
+async function confirmUpiPayment(pdfId){
+  if(!confirm('Kya aapne payment complete kar diya?\n\n' +
+              'Admin verification ke baad PDF unlock hoga (24 hrs).')){
+    return;
+  }
+
+  try{
+    const res = await fetch('/payment/upi-claim/' + pdfId, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+
+    if(data.status === 'ok'){
+      alert('✅ Claim submit ho gaya!\n\n' +
+            'Admin aapka payment verify karega (24 hrs).\n' +
+            'Verify hone par PDF auto-unlock ho jayega.');
+      window.location.href = '/my-pending-orders';
+    } else {
+      alert('❌ ' + (data.error || 'Failed'));
+    }
+  } catch(e){
+    alert('❌ Error: ' + e.message);
+  }
+}
+
+/* ============================================================
+   OPTIONAL: Auto-dismiss flash messages after 6 seconds
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', function(){
+  const flashes = document.querySelectorAll('.flash');
+    // Apply saved language on page load
+  if(typeof window.__userLang !== 'undefined'){
+    applyTranslations(window.__userLang);
+  }
+  // Init settings auto-save (only works on settings page)
+  initSettingsAutoSave();
+  flashes.forEach(function(el){
+    setTimeout(function(){
+      el.style.transition = 'opacity .5s, transform .5s';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-10px)';
+      setTimeout(function(){
+        if(el.parentNode) el.parentNode.removeChild(el);
+      }, 500);
+    }, 6000);
+  });
+});
+
+/* ============================================================
+   OPTIONAL: Confirm before leaving with unsaved changes
+   ============================================================ */
+(function(){
+  let isDirty = false;
+  document.querySelectorAll('form input, form textarea, form select').forEach(function(el){
+    el.addEventListener('change', function(){ isDirty = true; });
+  });
+  document.querySelectorAll('form').forEach(function(f){
+    f.addEventListener('submit', function(){ isDirty = false; });
+  });
+  window.addEventListener('beforeunload', function(e){
+    if(isDirty){
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
